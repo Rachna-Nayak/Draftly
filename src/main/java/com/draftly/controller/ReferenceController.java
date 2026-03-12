@@ -3,17 +3,17 @@ package com.draftly.controller;
 import com.draftly.model.Paper;
 import com.draftly.model.Reference;
 import com.draftly.service.ReferenceService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Controller for Reference & Citation management. (UC4)
+ * REST Controller for Reference & Citation management. (UC4)
  */
-@Controller
-@RequestMapping("/references")
+@RestController
+@RequestMapping("/api/references")
 public class ReferenceController {
 
     private final ReferenceService referenceService;
@@ -23,33 +23,27 @@ public class ReferenceController {
     }
 
     @GetMapping("/{projectId}")
-    public String listReferences(@PathVariable String projectId, Model model) {
-        List<Reference> references = referenceService.getReferencesByProject(projectId);
-        model.addAttribute("references", references);
-        model.addAttribute("projectId", projectId);
-        return "reference/list";
+    public List<Reference> listReferences(@PathVariable String projectId) {
+        return referenceService.getReferencesByProject(projectId);
     }
 
-    @PostMapping("/add")
-    public String addReference(@RequestParam String projectId,
-                               @RequestParam String paperId,
-                               @RequestParam(defaultValue = "APA") String format) {
-        referenceService.addReference(projectId, paperId, format);
-        return "redirect:/references/" + projectId;
+    @PostMapping
+    public Reference addReference(@RequestBody Map<String, String> body) {
+        return referenceService.addReference(
+            body.get("projectId"),
+            body.get("paperId"),
+            body.getOrDefault("format", "APA")
+        );
     }
 
-    @PostMapping("/{referenceId}/delete")
-    public String removeReference(@PathVariable String referenceId,
-                                  @RequestParam String projectId) {
+    @DeleteMapping("/{referenceId}")
+    public ResponseEntity<Void> removeReference(@PathVariable String referenceId) {
         referenceService.removeReference(referenceId);
-        return "redirect:/references/" + projectId;
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{projectId}/suggestions")
-    public String suggestReferences(@PathVariable String projectId, Model model) {
-        List<Paper> suggestions = referenceService.suggestReferences(projectId);
-        model.addAttribute("suggestions", suggestions);
-        model.addAttribute("projectId", projectId);
-        return "reference/suggestions";
+    public List<Paper> suggestReferences(@PathVariable String projectId) {
+        return referenceService.suggestReferences(projectId);
     }
 }

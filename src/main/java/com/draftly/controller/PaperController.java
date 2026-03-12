@@ -3,17 +3,17 @@ package com.draftly.controller;
 import com.draftly.model.ResearchPaper;
 import com.draftly.service.FeedbackService;
 import com.draftly.service.ResearchPaperService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Controller for Paper writing (sections) and Faculty Feedback. (UC6)
+ * REST Controller for Paper writing (sections) and Faculty Feedback. (UC6)
  */
-@Controller
-@RequestMapping("/papers")
+@RestController
+@RequestMapping("/api/papers")
 public class PaperController {
 
     private final ResearchPaperService researchPaperService;
@@ -25,54 +25,52 @@ public class PaperController {
     }
 
     @GetMapping("/project/{projectId}")
-    public String listPapers(@PathVariable String projectId, Model model) {
-        List<ResearchPaper> papers = researchPaperService.getPapersByProject(projectId);
-        model.addAttribute("papers", papers);
-        model.addAttribute("projectId", projectId);
-        return "paper/list";
+    public List<ResearchPaper> listPapers(@PathVariable String projectId) {
+        return researchPaperService.getPapersByProject(projectId);
     }
 
-    @GetMapping("/new/{projectId}")
-    public String showCreateForm(@PathVariable String projectId, Model model) {
-        model.addAttribute("projectId", projectId);
-        return "paper/create";
-    }
-
-    @PostMapping("/new")
-    public String createPaper(@RequestParam String projectId, @RequestParam String title) {
-        researchPaperService.createPaper(projectId, title);
-        return "redirect:/papers/project/" + projectId;
+    @PostMapping
+    public ResearchPaper createPaper(@RequestBody Map<String, String> body) {
+        return researchPaperService.createPaper(body.get("projectId"), body.get("title"));
     }
 
     @GetMapping("/{paperId}")
-    public String viewPaper(@PathVariable String paperId, Model model) {
-        researchPaperService.getPaperById(paperId).ifPresent(p -> model.addAttribute("paper", p));
-        return "paper/view";
+    public ResponseEntity<ResearchPaper> getPaper(@PathVariable String paperId) {
+        return researchPaperService.getPaperById(paperId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/{paperId}/sections")
-    public String addSection(@PathVariable String paperId,
-                             @RequestParam String sectionName,
-                             @RequestParam String content,
-                             @RequestParam int order) {
-        researchPaperService.addSection(paperId, sectionName, content, order);
-        return "redirect:/papers/" + paperId;
+    public ResearchPaper addSection(@PathVariable String paperId, @RequestBody Map<String, Object> body) {
+        return researchPaperService.addSection(
+            paperId,
+            (String) body.get("sectionName"),
+            (String) body.get("content"),
+            (int) body.get("order")
+        );
     }
 
     @PostMapping("/{paperId}/feedback")
-    public String submitFeedback(@PathVariable String paperId,
-                                 @RequestParam String facultyId,
-                                 @RequestParam String facultyName,
-                                 @RequestParam String sectionName,
-                                 @RequestParam String comment,
-                                 @RequestParam String status) {
-        feedbackService.submitFeedback(paperId, facultyId, facultyName, sectionName, comment, status);
-        return "redirect:/papers/" + paperId;
+    public ResearchPaper submitFeedback(@PathVariable String paperId, @RequestBody Map<String, String> body) {
+        return feedbackService.submitFeedback(
+            paperId,
+            body.get("facultyId"),
+            body.get("facultyName"),
+            body.get("sectionName"),
+            body.get("comment"),
+            body.get("status")
+        );
     }
 
     @PostMapping("/{paperId}/approve")
-    public String approvePaper(@PathVariable String paperId) {
-        feedbackService.approvePaper(paperId);
-        return "redirect:/papers/" + paperId;
+    public ResearchPaper approvePaper(@PathVariable String paperId) {
+        return feedbackService.approvePaper(paperId);
+    }
+
+    @DeleteMapping("/{paperId}")
+    public ResponseEntity<Void> deletePaper(@PathVariable String paperId) {
+        researchPaperService.deletePaper(paperId);
+        return ResponseEntity.noContent().build();
     }
 }

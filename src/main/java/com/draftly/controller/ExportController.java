@@ -4,15 +4,13 @@ import com.draftly.service.ExportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controller for Export & Submission Readiness Check. (UC8)
+ * REST Controller for Export & Submission Readiness Check. (UC8)
  */
-@Controller
-@RequestMapping("/export")
+@RestController
+@RequestMapping("/api/export")
 public class ExportController {
 
     private final ExportService exportService;
@@ -22,14 +20,9 @@ public class ExportController {
     }
 
     @GetMapping("/readiness/{paperId}")
-    public String checkReadiness(@PathVariable String paperId,
-                                 @RequestParam String projectId,
-                                 Model model) {
-        ExportService.ReadinessReport report = exportService.checkReadiness(paperId, projectId);
-        model.addAttribute("report", report);
-        model.addAttribute("paperId", paperId);
-        model.addAttribute("projectId", projectId);
-        return "export/readiness";
+    public ExportService.ReadinessReport checkReadiness(@PathVariable String paperId,
+                                                         @RequestParam String projectId) {
+        return exportService.checkReadiness(paperId, projectId);
     }
 
     @GetMapping("/pdf/{paperId}")

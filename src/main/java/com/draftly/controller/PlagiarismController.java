@@ -2,15 +2,13 @@ package com.draftly.controller;
 
 import com.draftly.model.PlagiarismReport;
 import com.draftly.service.PlagiarismService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controller for Plagiarism & Integrity Risk Analysis. (UC7)
+ * REST Controller for Plagiarism & Integrity Risk Analysis. (UC7)
  */
-@Controller
-@RequestMapping("/plagiarism")
+@RestController
+@RequestMapping("/api/plagiarism")
 public class PlagiarismController {
 
     private final PlagiarismService plagiarismService;
@@ -20,10 +18,7 @@ public class PlagiarismController {
     }
 
     @GetMapping("/{paperId}")
-    public String checkPlagiarism(@PathVariable String paperId, Model model) {
-        PlagiarismReport report = plagiarismService.checkPlagiarism(paperId);
-        model.addAttribute("report", report);
-        model.addAttribute("paperId", paperId);
-        return "plagiarism/report";
+    public PlagiarismReport checkPlagiarism(@PathVariable String paperId) {
+        return plagiarismService.checkPlagiarism(paperId);
     }
 }

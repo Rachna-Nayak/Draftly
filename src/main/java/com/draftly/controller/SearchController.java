@@ -4,18 +4,18 @@ import com.draftly.model.CredibilityReport;
 import com.draftly.model.Paper;
 import com.draftly.service.CredibilityService;
 import com.draftly.service.SearchService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Controller for Literature Search (UC2) and Credibility Evaluation (UC3).
+ * REST Controller for Literature Search (UC2) and Credibility Evaluation (UC3).
  */
-@Controller
-@RequestMapping("/search")
+@RestController
+@RequestMapping("/api/search")
 public class SearchController {
 
     private final SearchService searchService;
@@ -27,32 +27,27 @@ public class SearchController {
     }
 
     @GetMapping
-    public String showSearchPage(Model model) {
-        model.addAttribute("papers", List.of());
-        return "search/index";
+    public List<Paper> searchPapers(@RequestParam String keywords,
+                                    @RequestParam(required = false) String domain,
+                                    @RequestParam(required = false) Integer startYear,
+                                    @RequestParam(required = false) Integer endYear,
+                                    @RequestParam(required = false) Integer minCitations) {
+        List<String> keywordList = Arrays.asList(keywords.split("\\s*,\\s*"));
+        return searchService.searchWithFilters(keywordList, domain, startYear, endYear, minCitations);
     }
 
-    @PostMapping
-    public String searchPapers(@RequestParam String keywords,
-                               @RequestParam(required = false) String domain,
-                               @RequestParam(required = false) Integer startYear,
-                               @RequestParam(required = false) Integer endYear,
-                               @RequestParam(required = false) Integer minCitations,
-                               Model model) {
-        List<String> keywordList = Arrays.asList(keywords.split("\\s*,\\s*"));
-        List<Paper> results = searchService.searchWithFilters(keywordList, domain, startYear, endYear, minCitations);
-        model.addAttribute("papers", results);
-        model.addAttribute("keywords", keywords);
-        return "search/index";
+    @GetMapping("/all")
+    public List<Paper> getAllPapers() {
+        return searchService.getAllPapers();
     }
 
     @GetMapping("/credibility/{paperId}")
-    public String evaluateCredibility(@PathVariable String paperId, Model model) {
-        searchService.getPaperById(paperId).ifPresent(paper -> {
-            CredibilityReport report = credibilityService.computeCredibility(paper);
-            model.addAttribute("paper", paper);
-            model.addAttribute("report", report);
-        });
-        return "search/credibility";
+    public ResponseEntity<Map<String, Object>> evaluateCredibility(@PathVariable String paperId) {
+        return searchService.getPaperById(paperId)
+                .map(paper -> {
+                    CredibilityReport report = credibilityService.computeCredibility(paper);
+                    return ResponseEntity.ok(Map.<String, Object>of("paper", paper, "report", report));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 }

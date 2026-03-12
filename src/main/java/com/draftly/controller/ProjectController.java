@@ -2,17 +2,17 @@ package com.draftly.controller;
 
 import com.draftly.model.ResearchProject;
 import com.draftly.service.ProjectService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * Controller for Research Project management. (UC1)
+ * REST Controller for Research Project management. (UC1)
  */
-@Controller
-@RequestMapping("/projects")
+@RestController
+@RequestMapping("/api/projects")
 public class ProjectController {
 
     private final ProjectService projectService;
@@ -22,41 +22,30 @@ public class ProjectController {
     }
 
     @GetMapping
-    public String listProjects(@RequestParam(required = false) String ownerId, Model model) {
-        List<ResearchProject> projects;
-        if (ownerId != null) {
-            projects = projectService.getProjectsByOwner(ownerId);
-        } else {
-            projects = projectService.getProjectsByOwner("default"); // TODO: replace with session user
-        }
-        model.addAttribute("projects", projects);
-        return "project/list";
+    public List<ResearchProject> listProjects(@RequestParam(defaultValue = "default") String ownerId) {
+        return projectService.getProjectsByOwner(ownerId);
     }
 
-    @GetMapping("/new")
-    public String showCreateForm(Model model) {
-        model.addAttribute("project", new ResearchProject());
-        return "project/create";
-    }
-
-    @PostMapping("/new")
-    public String createProject(@RequestParam String title,
-                                @RequestParam String domain,
-                                @RequestParam String objectives,
-                                @RequestParam(defaultValue = "default") String ownerId) {
-        projectService.createProject(title, domain, objectives, ownerId);
-        return "redirect:/projects?ownerId=" + ownerId;
+    @PostMapping
+    public ResearchProject createProject(@RequestBody Map<String, String> body) {
+        return projectService.createProject(
+            body.get("title"),
+            body.get("domain"),
+            body.get("objectives"),
+            body.getOrDefault("ownerId", "default")
+        );
     }
 
     @GetMapping("/{id}")
-    public String viewProject(@PathVariable String id, Model model) {
-        projectService.getProjectById(id).ifPresent(p -> model.addAttribute("project", p));
-        return "project/view";
+    public ResponseEntity<ResearchProject> getProject(@PathVariable String id) {
+        return projectService.getProjectById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/{id}/delete")
-    public String deleteProject(@PathVariable String id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable String id) {
         projectService.deleteProject(id);
-        return "redirect:/projects";
+        return ResponseEntity.noContent().build();
     }
 }
