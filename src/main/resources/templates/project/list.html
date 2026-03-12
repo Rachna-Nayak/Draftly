@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Projects - Draftly</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        nav { background: #2c3e50; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+        nav a { color: #ecf0f1; text-decoration: none; } nav a:hover { color: #3498db; }
+        nav .brand { font-size: 1.3rem; font-weight: bold; color: #3498db; }
+        .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { margin-bottom: 1rem; color: #2c3e50; }
+        .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; text-decoration: none; color: #fff; }
+        .btn-primary { background: #3498db; } .btn-danger { background: #e74c3c; }
+        .btn:hover { opacity: 0.9; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; color: #fff; background: #3498db; }
+        .actions { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="brand">📝 Draftly</a>
+        <a href="/projects">Projects</a>
+        <a href="/search">Search Literature</a>
+    </nav>
+    <div class="container">
+        <h1>My Research Projects</h1>
+        <a href="/projects/new" class="btn btn-primary" style="margin-bottom:1.5rem;">+ New Project</a>
+
+        <div th:if="${#lists.isEmpty(projects)}">
+            <p>No projects yet. Create your first research project!</p>
+        </div>
+
+        <div th:each="project : ${projects}" class="card">
+            <h3 th:text="${project.title}">Project Title</h3>
+            <p><strong>Domain:</strong> <span th:text="${project.domain}">Domain</span></p>
+            <p><strong>Keywords:</strong>
+                <span th:each="kw : ${project.keywords}" class="badge" th:text="${kw}" style="margin-right:0.3rem;">keyword</span>
+            </p>
+            <p><strong>Created:</strong> <span th:text="${project.createdAt}">date</span></p>
+            <div class="actions">
+                <a th:href="@{/projects/{id}(id=${project.id})}" class="btn btn-primary">View</a>
+                <a th:href="@{/papers/project/{id}(id=${project.id})}" class="btn btn-primary">Papers</a>
+                <a th:href="@{/references/{id}(id=${project.id})}" class="btn btn-primary">References</a>
+                <form th:action="@{/projects/{id}/delete(id=${project.id})}" method="post" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

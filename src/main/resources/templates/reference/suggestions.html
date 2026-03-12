@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reference Suggestions - Draftly</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        nav { background: #2c3e50; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+        nav a { color: #ecf0f1; text-decoration: none; } nav a:hover { color: #3498db; }
+        nav .brand { font-size: 1.3rem; font-weight: bold; color: #3498db; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { margin-bottom: 1rem; color: #2c3e50; }
+        .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; text-decoration: none; color: #fff; }
+        .btn-success { background: #27ae60; } .btn-secondary { background: #95a5a6; }
+        .form-group select { padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="brand">📝 Draftly</a>
+        <a href="/projects">Projects</a>
+        <a href="/search">Search Literature</a>
+    </nav>
+    <div class="container">
+        <h1>💡 Suggested References</h1>
+
+        <div th:if="${#lists.isEmpty(suggestions)}">
+            <p>No suggestions found. Try adding more keywords to your project.</p>
+        </div>
+
+        <div th:each="paper : ${suggestions}" class="card">
+            <h3 th:text="${paper.title}">Paper Title</h3>
+            <p><strong>Authors:</strong> <span th:text="${#strings.listJoin(paper.authors, ', ')}"></span></p>
+            <p><strong>Year:</strong> <span th:text="${paper.publicationYear}"></span> | <strong>Citations:</strong> <span th:text="${paper.citationCount}"></span></p>
+            <form action="/references/add" method="post" style="margin-top:0.5rem; display:flex; gap:0.5rem; align-items:center;">
+                <input type="hidden" name="projectId" th:value="${projectId}" />
+                <input type="hidden" name="paperId" th:value="${paper.id}" />
+                <select name="format">
+                    <option value="APA">APA</option>
+                    <option value="MLA">MLA</option>
+                    <option value="IEEE">IEEE</option>
+                </select>
+                <button type="submit" class="btn btn-success">+ Add Reference</button>
+            </form>
+        </div>
+
+        <a th:href="@{/references/{pid}(pid=${projectId})}" class="btn btn-secondary">← Back to References</a>
+    </div>
+</body>
+</html>

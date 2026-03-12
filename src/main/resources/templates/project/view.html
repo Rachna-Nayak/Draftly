@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Details - Draftly</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        nav { background: #2c3e50; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+        nav a { color: #ecf0f1; text-decoration: none; } nav a:hover { color: #3498db; }
+        nav .brand { font-size: 1.3rem; font-weight: bold; color: #3498db; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        h1, h2 { margin-bottom: 1rem; color: #2c3e50; }
+        .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; text-decoration: none; color: #fff; }
+        .btn-primary { background: #3498db; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; color: #fff; background: #3498db; margin-right: 0.3rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="brand">📝 Draftly</a>
+        <a href="/projects">Projects</a>
+        <a href="/search">Search Literature</a>
+    </nav>
+    <div class="container">
+        <div th:if="${project != null}">
+            <h1 th:text="${project.title}">Project Title</h1>
+            <div class="card">
+                <p><strong>Domain:</strong> <span th:text="${project.domain}"></span></p>
+                <p><strong>Objectives:</strong> <span th:text="${project.objectives}"></span></p>
+                <p><strong>Keywords:</strong>
+                    <span th:each="kw : ${project.keywords}" class="badge" th:text="${kw}"></span>
+                </p>
+                <p><strong>Created:</strong> <span th:text="${project.createdAt}"></span></p>
+                <p><strong>Last Updated:</strong> <span th:text="${project.updatedAt}"></span></p>
+            </div>
+            <h2>Quick Actions</h2>
+            <a th:href="@{/papers/project/{id}(id=${project.id})}" class="btn btn-primary">📝 Papers</a>
+            <a th:href="@{/references/{id}(id=${project.id})}" class="btn btn-primary">📚 References</a>
+            <a th:href="@{/search}" class="btn btn-primary">🔍 Search Literature</a>
+        </div>
+        <div th:if="${project == null}">
+            <p>Project not found.</p>
+        </div>
+    </div>
+</body>
+</html>

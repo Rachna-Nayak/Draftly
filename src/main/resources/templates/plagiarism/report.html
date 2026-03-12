@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Plagiarism Report - Draftly</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        nav { background: #2c3e50; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+        nav a { color: #ecf0f1; text-decoration: none; } nav a:hover { color: #3498db; }
+        nav .brand { font-size: 1.3rem; font-weight: bold; color: #3498db; }
+        .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        h1, h2 { margin-bottom: 1rem; color: #2c3e50; }
+        .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; text-decoration: none; color: #fff; }
+        .btn-secondary { background: #95a5a6; }
+        .score-bar { height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden; margin: 0.3rem 0; }
+        .score-fill-danger { height: 100%; border-radius: 10px; background: #e74c3c; }
+        .score-fill-ok { height: 100%; border-radius: 10px; background: #27ae60; }
+        .flagged { border-left: 4px solid #e74c3c; padding: 0.8rem; margin: 0.5rem 0; background: #fdf2f2; border-radius: 0 5px 5px 0; }
+        .overall-ok { color: #27ae60; font-size: 1.3rem; font-weight: bold; }
+        .overall-warn { color: #e74c3c; font-size: 1.3rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="brand">📝 Draftly</a>
+        <a href="/projects">Projects</a>
+        <a href="/search">Search Literature</a>
+    </nav>
+    <div class="container">
+        <h1>🔒 Plagiarism Report</h1>
+
+        <div class="card" th:if="${report != null}">
+            <h2>Overall Similarity</h2>
+            <p>Score: <span th:class="${report.overallSimilarityScore > 0.5} ? 'overall-warn' : 'overall-ok'" th:text="${#numbers.formatDecimal(report.overallSimilarityScore * 100, 1, 1) + '%'}">0%</span></p>
+            <div class="score-bar">
+                <div th:class="${report.overallSimilarityScore > 0.5} ? 'score-fill-danger' : 'score-fill-ok'" th:style="'width:' + ${report.overallSimilarityScore * 100} + '%'"></div>
+            </div>
+        </div>
+
+        <div th:if="${report != null && !#lists.isEmpty(report.flaggedSections)}">
+            <h2>⚠️ Flagged Sections</h2>
+            <div th:each="flag : ${report.flaggedSections}" class="flagged">
+                <p><strong>Section:</strong> <span th:text="${flag.sectionName}"></span></p>
+                <p><strong>Matched Paper:</strong> <span th:text="${flag.matchedPaperTitle}"></span></p>
+                <p><strong>Similarity:</strong> <span th:text="${#numbers.formatDecimal(flag.similarityScore * 100, 1, 1) + '%'}"></span></p>
+            </div>
+        </div>
+
+        <div th:if="${report != null && #lists.isEmpty(report.flaggedSections)}" class="card">
+            <p style="color:#27ae60; font-weight:bold;">✅ No plagiarism flags detected. Your paper looks original!</p>
+        </div>
+
+        <a th:href="@{/papers/{id}(id=${paperId})}" class="btn btn-secondary" style="margin-top:1rem;">← Back to Paper</a>
+    </div>
+</body>
+</html>

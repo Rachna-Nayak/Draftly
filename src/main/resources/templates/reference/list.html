@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>References - Draftly</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        nav { background: #2c3e50; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+        nav a { color: #ecf0f1; text-decoration: none; } nav a:hover { color: #3498db; }
+        nav .brand { font-size: 1.3rem; font-weight: bold; color: #3498db; }
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        h1 { margin-bottom: 1rem; color: #2c3e50; }
+        .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; text-decoration: none; color: #fff; }
+        .btn-primary { background: #3498db; } .btn-danger { background: #e74c3c; } .btn-secondary { background: #95a5a6; }
+        .citation { background: #f8f9fa; padding: 0.8rem; border-radius: 5px; border-left: 4px solid #27ae60; font-style: italic; margin: 0.5rem 0; }
+        .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; color: #fff; background: #27ae60; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="brand">📝 Draftly</a>
+        <a href="/projects">Projects</a>
+        <a href="/search">Search Literature</a>
+    </nav>
+    <div class="container">
+        <h1>📚 Project References</h1>
+        <a th:href="@{/references/{pid}/suggestions(pid=${projectId})}" class="btn btn-primary" style="margin-bottom:1rem;">💡 Get Suggestions</a>
+
+        <div th:if="${#lists.isEmpty(references)}">
+            <p>No references added yet. Search for papers and add them as references.</p>
+        </div>
+
+        <div th:each="ref : ${references}" class="card">
+            <p><span class="badge" th:text="${ref.citationFormat}">APA</span></p>
+            <div class="citation" th:text="${ref.formattedCitation}">Citation text</div>
+            <form th:action="@{/references/{rid}/delete(rid=${ref.id})}" method="post" style="margin-top:0.5rem;">
+                <input type="hidden" name="projectId" th:value="${projectId}" />
+                <button type="submit" class="btn btn-danger">Remove</button>
+            </form>
+        </div>
+
+        <a th:href="@{/projects/{id}(id=${projectId})}" class="btn btn-secondary">← Back to Project</a>
+    </div>
+</body>
+</html>

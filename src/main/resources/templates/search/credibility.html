@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Credibility Report - Draftly</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f5f7fa; color: #333; }
+        nav { background: #2c3e50; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+        nav a { color: #ecf0f1; text-decoration: none; } nav a:hover { color: #3498db; }
+        nav .brand { font-size: 1.3rem; font-weight: bold; color: #3498db; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        h1, h2 { margin-bottom: 1rem; color: #2c3e50; }
+        .card { background: #fff; border-radius: 8px; padding: 1.5rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+        .score-bar { height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden; margin: 0.3rem 0 0.8rem; }
+        .score-fill { height: 100%; border-radius: 10px; background: #3498db; }
+        .score-label { font-weight: 600; }
+        .overall { font-size: 1.4rem; font-weight: bold; color: #27ae60; }
+        .citation-box { background: #f8f9fa; padding: 1rem; border-radius: 5px; border-left: 4px solid #3498db; font-style: italic; }
+        .btn { display: inline-block; padding: 0.5rem 1.2rem; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem; text-decoration: none; color: #fff; }
+        .btn-secondary { background: #95a5a6; }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/" class="brand">📝 Draftly</a>
+        <a href="/projects">Projects</a>
+        <a href="/search">Search Literature</a>
+    </nav>
+    <div class="container">
+        <h1>⭐ Credibility Report</h1>
+        <div th:if="${paper != null}" class="card">
+            <h2 th:text="${paper.title}">Paper Title</h2>
+            <p><strong>Journal:</strong> <span th:text="${paper.journal}"></span></p>
+            <p><strong>Year:</strong> <span th:text="${paper.publicationYear}"></span></p>
+            <p><strong>Citations:</strong> <span th:text="${paper.citationCount}"></span></p>
+        </div>
+
+        <div th:if="${report != null}" class="card">
+            <h2>Scores</h2>
+            <p class="score-label">Citation Score: <span th:text="${#numbers.formatDecimal(report.citationScore, 1, 2)}"></span></p>
+            <div class="score-bar"><div class="score-fill" th:style="'width:' + ${report.citationScore * 100} + '%'"></div></div>
+
+            <p class="score-label">Journal Impact Score: <span th:text="${#numbers.formatDecimal(report.journalScore, 1, 2)}"></span></p>
+            <div class="score-bar"><div class="score-fill" th:style="'width:' + ${report.journalScore * 100} + '%'"></div></div>
+
+            <p class="score-label">Recency Score: <span th:text="${#numbers.formatDecimal(report.recencyScore, 1, 2)}"></span></p>
+            <div class="score-bar"><div class="score-fill" th:style="'width:' + ${report.recencyScore * 100} + '%'"></div></div>
+
+            <hr style="margin: 1rem 0;" />
+            <p>Overall Credibility: <span class="overall" th:text="${#numbers.formatDecimal(report.overallScore, 1, 2)}"></span></p>
+        </div>
+
+        <div th:if="${report != null}" class="card">
+            <h2>Suggested Citation (APA)</h2>
+            <div class="citation-box" th:text="${report.suggestedCitation}"></div>
+        </div>
+
+        <a href="/search" class="btn btn-secondary">← Back to Search</a>
+    </div>
+</body>
+</html>
