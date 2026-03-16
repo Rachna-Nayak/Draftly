@@ -5,7 +5,10 @@ import com.draftly.service.FeedbackService;
 import com.draftly.service.ResearchPaperService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +36,54 @@ public class PaperController {
     public ResearchPaper createPaper(@RequestBody Map<String, String> body) {
         return researchPaperService.createPaper(body.get("projectId"), body.get("title"));
     }
+
+    /**
+     * FR5 + FR6: Upload a DOCX file and parse it into a ResearchPaper with sections.
+     * Accepts multipart form data with the file, projectId, title, and optional template (IEEE or LNCS).
+     */
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadDocx(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam String projectId,
+            @RequestParam String title,
+            @RequestParam(defaultValue = "IEEE") String template,
+            @RequestParam(required = false) String referencesBibtex,
+            @RequestParam(value = "referencesFile", required = false) MultipartFile referencesFile) {
+
+        // FR5: Validate file format and size
+        String filename = file.getOriginalFilename();
+        if (filename == null || !filename.toLowerCase().endsWith(".docx")) {
+            return ResponseEntity.badRequest().body("Invalid file format. Only .docx files are accepted.");
+        }
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("Uploaded file is empty.");
+        }
+        // 20 MB limit
+        if (file.getSize() > 20 * 1024 * 1024) {
+            return ResponseEntity.badRequest().body("File exceeds the maximum allowed size of 20 MB.");
+        }
+
+        try {
+            String uploadedReferences = referencesBibtex;
+            if (referencesFile != null && !referencesFile.isEmpty()) {
+                uploadedReferences = new String(referencesFile.getBytes(), StandardCharsets.UTF_8);
+            }
+
+            ResearchPaper paper = researchPaperService.importFromDocx(
+                    projectId,
+                    title,
+                    file.getBytes(),
+                    template,
+                    uploadedReferences
+            );
+            return ResponseEntity.ok(paper);
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body("Failed to read the uploaded file: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/{paperId}")
     public ResponseEntity<ResearchPaper> getPaper(@PathVariable String paperId) {
