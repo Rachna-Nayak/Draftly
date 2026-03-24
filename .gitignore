@@ -36,3 +36,9 @@ out/
 
 ### VS Code ###
 .vscode/
+README_CONVERTER.md
+sample_paper.docx
+create-sample-papers.py
+DirectConversionTest.java
+SimpleConverter.java
+SimpleLatexTest.java

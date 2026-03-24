@@ -5,7 +5,6 @@ import com.draftly.model.PlagiarismReport;
 import com.draftly.model.Reference;
 import com.draftly.model.ResearchPaper;
 import com.draftly.repository.ResearchPaperRepository;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -28,6 +27,10 @@ import java.util.regex.Pattern;
 
 /**
  * Export Service - Validates formatting and exports papers. (UC8)
+ * 
+ * This service orchestrates the export process by delegating format-specific logic
+ * to specialized components (LatexTemplateProvider, LatexFormatBuilder, LatexEscapeUtils).
+ * Follows Single Responsibility and Dependency Inversion principles.
  */
 @Service
 public class ExportService {
@@ -41,15 +44,27 @@ public class ExportService {
     private final ReferenceService referenceService;
     private final PlagiarismService plagiarismService;
     private final NLPService nlpService;
+    private final LatexTemplateProvider templateProvider;
+    private final Map<String, LatexFormatBuilder> formatBuilders;
+    private final LatexEscapeUtils escapeUtils;
 
     public ExportService(ResearchPaperRepository researchPaperRepository,
                          ReferenceService referenceService,
                          PlagiarismService plagiarismService,
-                         NLPService nlpService) {
+                         NLPService nlpService,
+                         LatexTemplateProvider templateProvider,
+                         IeeeLatexFormatBuilder ieeeBuilder,
+                         LncsLatexFormatBuilder lncsBuilder,
+                         LatexEscapeUtils escapeUtils) {
         this.researchPaperRepository = researchPaperRepository;
         this.referenceService = referenceService;
         this.plagiarismService = plagiarismService;
         this.nlpService = nlpService;
+        this.templateProvider = templateProvider;
+        this.escapeUtils = escapeUtils;
+        this.formatBuilders = new HashMap<>();
+        this.formatBuilders.put(ieeeBuilder.getFormat(), ieeeBuilder);
+        this.formatBuilders.put(lncsBuilder.getFormat(), lncsBuilder);
     }
 
     /**
@@ -134,6 +149,12 @@ public class ExportService {
 
     /**
      * UC8: Export paper as LaTeX.
+     * 
+     * This method orchestrates the LaTeX export process:
+     * 1. Load the appropriate template via LatexTemplateProvider
+     * 2. Get the format-specific builder for handling format-specific logic
+     * 3. Build sections, authors, and keywords using the format builder
+     * 4. Replace placeholders in the template
      */
     public String exportAsLatex(String researchPaperId) {
         Optional<ResearchPaper> paperOpt = researchPaperRepository.findById(researchPaperId);
@@ -142,38 +163,46 @@ public class ExportService {
         }
 
         ResearchPaper paper = paperOpt.get();
-        String template = normalizeTemplateName(paper.getTemplate());
+        String templateFormat = normalizeTemplateName(paper.getTemplate());
+        
+        // Get format-specific builder
+        LatexFormatBuilder formatBuilder = formatBuilders.getOrDefault(templateFormat, formatBuilders.get("IEEE"));
+        
+        // Prepare data
         List<Reference> projectReferences = referenceService.getReferencesByProject(paper.getProjectId());
         Map<Integer, String> citationKeyMap = buildCitationKeyMap(projectReferences);
         List<PaperSection> orderedSections = paper.getSections().stream()
                 .sorted(Comparator.comparingInt(PaperSection::getOrder))
                 .toList();
 
-        String abstractText = escapeLatexPreservingCitations(
+        // Extract and prepare content
+        String abstractText = escapeUtils.escapeLatexPreservingCitations(
             replaceNumberedCitations(extractSectionContent(orderedSections, "abstract"), citationKeyMap)
         );
-        String keywordText = escapeLatex(extractSectionContent(orderedSections, "keywords"));
-        String renderedSections = buildLatexSections(orderedSections, citationKeyMap);
-        String escapedTitle = escapeLatex(paper.getTitle());
+        String keywordText = escapeUtils.escapeLatex(extractSectionContent(orderedSections, "keywords"));
+        String renderedSections = formatBuilder.buildSections(orderedSections, citationKeyMap);
+        String escapedTitle = escapeUtils.escapeLatex(paper.getTitle());
+        String authorsBlock = formatBuilder.buildAuthorsBlock();
 
-        String latexTemplate = loadTemplate(template);
+        // Load template and replace placeholders
+        String latexTemplate = templateProvider.loadTemplate(templateFormat);
         return latexTemplate
             .replace("{{{PAPER_TITLE}}}", escapedTitle)
             .replace("{{PAPER_TITLE}}", escapedTitle)
-                .replace("{{PAPER_AUTHORS}}", defaultAuthorsBlock(template))
+            .replace("{{PAPER_AUTHORS}}", authorsBlock)
             .replace("{{PAPER_ABSTRACT}}", abstractText)
-            .replace("{{PAPER_KEYWORDS}}", keywordText)
-                .replace("{{PAPER_SECTIONS}}", renderedSections);
+            .replace("{{PAPER_KEYWORDS}}", formatBuilder.buildKeywords(keywordText))
+            .replace("{{PAPER_SECTIONS}}", renderedSections);
     }
 
-        /**
-         * UC8: Generate references.bib content for a paper's project.
-         */
-        public String exportBibForPaper(String researchPaperId) {
+    /**
+     * UC8: Generate references.bib content for a paper's project.
+     */
+    public String exportBibForPaper(String researchPaperId) {
         ResearchPaper paper = researchPaperRepository.findById(researchPaperId)
             .orElseThrow(() -> new IllegalArgumentException("Research paper not found: " + researchPaperId));
         return generateBib(paper.getProjectId());
-        }
+    }
 
     /**
      * UC8: Generate references.bib content for a project.
@@ -212,10 +241,10 @@ public class ExportService {
             }
 
             bibBuilder.append("@misc{").append(key).append(",\n");
-            bibBuilder.append("  note = {").append(escapeBibtexValue(formattedCitation)).append("}");
+            bibBuilder.append("  note = {").append(escapeUtils.escapeBibtexValue(formattedCitation)).append("}");
             if (reference.getCitationFormat() != null && !reference.getCitationFormat().isBlank()) {
                 bibBuilder.append(",\n  annote = {Citation Format: ")
-                        .append(escapeBibtexValue(reference.getCitationFormat().toUpperCase(Locale.ROOT)))
+                        .append(escapeUtils.escapeBibtexValue(reference.getCitationFormat().toUpperCase(Locale.ROOT)))
                         .append("}");
             }
             bibBuilder.append("\n}\n\n");
@@ -332,78 +361,6 @@ public class ExportService {
         return "IEEE";
     }
 
-    private String loadTemplate(String template) {
-        String resourcePath = "LNCS".equals(template)
-                ? "templates/latex/lncs_template.tex"
-                : "templates/latex/ieee_template.tex";
-
-        try {
-            ClassPathResource resource = new ClassPathResource(resourcePath);
-            return new String(resource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        } catch (IOException exception) {
-            return defaultTemplate(template);
-        }
-    }
-
-    private String defaultTemplate(String template) {
-        if ("LNCS".equals(template)) {
-            return """
-                    \\documentclass[runningheads]{llncs}
-                    \\usepackage{graphicx}
-
-                    \\begin{document}
-                    \\title{{{PAPER_TITLE}}}
-                    \\author{Draftly Author}
-                    \\institute{Institution}
-                    \\maketitle
-
-                    \\begin{abstract}
-                    {{PAPER_ABSTRACT}}
-                    \\keywords{{PAPER_KEYWORDS}}
-                    \\end{abstract}
-
-                    {{PAPER_SECTIONS}}
-
-                    \\bibliography{references}
-                    \\bibliographystyle{splncs04}
-                    \\end{document}
-                    """;
-        }
-
-        return """
-                \\documentclass[conference]{IEEEtran}
-                \\usepackage{cite}
-                \\usepackage{amsmath,amssymb,amsfonts}
-                \\usepackage{graphicx}
-
-                \\begin{document}
-                \\title{{{PAPER_TITLE}}}
-                {{PAPER_AUTHORS}}
-                \\maketitle
-
-                \\begin{abstract}
-                {{PAPER_ABSTRACT}}
-                \\end{abstract}
-
-                \\begin{IEEEkeywords}
-                {{PAPER_KEYWORDS}}
-                \\end{IEEEkeywords}
-
-                {{PAPER_SECTIONS}}
-
-                \\bibliography{references}
-                \\bibliographystyle{IEEEtran}
-                \\end{document}
-                """;
-    }
-
-    private String defaultAuthorsBlock(String template) {
-        if ("LNCS".equals(template)) {
-            return "";
-        }
-        return "\\author{Draftly Author}";
-    }
-
     private String extractSectionContent(List<PaperSection> sections, String sectionName) {
         return sections.stream()
                 .filter(section -> section.getSectionName() != null)
@@ -414,31 +371,6 @@ public class ExportService {
                 .orElse(sectionName.equalsIgnoreCase("keywords")
                         ? "research, paper"
                         : "No abstract available.");
-    }
-
-    private String buildLatexSections(List<PaperSection> sections, Map<Integer, String> citationKeyMap) {
-        StringBuilder sectionsLatex = new StringBuilder();
-        for (PaperSection section : sections) {
-            if (section.getSectionName() == null) {
-                continue;
-            }
-
-            String normalizedSectionName = section.getSectionName().trim().toLowerCase(Locale.ROOT);
-            if ("abstract".equals(normalizedSectionName) || "keywords".equals(normalizedSectionName)) {
-                continue;
-            }
-
-            String sectionContent = section.getContent() == null ? "" : section.getContent();
-            String sectionWithLatexCitations = replaceNumberedCitations(sectionContent, citationKeyMap);
-            sectionsLatex
-                    .append("\\section{")
-                    .append(escapeLatex(section.getSectionName()))
-                    .append("}\n")
-                    .append(escapeLatexPreservingCitations(sectionWithLatexCitations))
-                    .append("\n\n");
-        }
-
-        return sectionsLatex.toString().trim();
     }
 
     private Map<Integer, String> buildCitationKeyMap(List<Reference> references) {
@@ -519,7 +451,7 @@ public class ExportService {
 
         Matcher matcher = BIBTEX_HEADER_PATTERN.matcher(bibtexEntry.trim());
         if (!matcher.find()) {
-            return "@misc{" + key + ",\n  note = {" + escapeBibtexValue(bibtexEntry) + "}\n}";
+            return "@misc{" + key + ",\n  note = {" + escapeUtils.escapeBibtexValue(bibtexEntry) + "}\n}";
         }
 
         String entryType = matcher.group(1).toLowerCase(Locale.ROOT);
@@ -609,78 +541,6 @@ public class ExportService {
         } catch (NumberFormatException exception) {
             return null;
         }
-    }
-
-    private String escapeLatexPreservingCitations(String text) {
-        if (text == null || text.isBlank()) {
-            return "";
-        }
-
-        Pattern citeCommandPattern = Pattern.compile("\\\\cite\\{[^}]+}");
-        Matcher matcher = citeCommandPattern.matcher(text);
-
-        String transformed = text;
-        List<String> tokens = new ArrayList<>();
-        List<String> commands = new ArrayList<>();
-
-        while (matcher.find()) {
-            String command = matcher.group();
-            String token = "CITECMDTOKEN" + tokens.size() + "END";
-            transformed = transformed.replace(command, token);
-            tokens.add(token);
-            commands.add(command);
-        }
-
-        String escaped = escapeLatex(transformed);
-        for (int index = 0; index < tokens.size(); index++) {
-            escaped = escaped.replace(tokens.get(index), commands.get(index));
-        }
-
-        return escaped;
-    }
-
-    private String escapeBibtexValue(String value) {
-        if (value == null) {
-            return "";
-        }
-
-        StringBuilder escaped = new StringBuilder();
-        for (char character : value.toCharArray()) {
-            switch (character) {
-                case '\\' -> escaped.append("\\textbackslash{}");
-                case '{' -> escaped.append("\\{");
-                case '}' -> escaped.append("\\}");
-                case '&' -> escaped.append("\\&");
-                case '%' -> escaped.append("\\%");
-                case '$' -> escaped.append("\\$");
-                case '#' -> escaped.append("\\#");
-                case '_' -> escaped.append("\\_");
-                case '~' -> escaped.append("\\textasciitilde{}");
-                case '^' -> escaped.append("\\textasciicircum{}");
-                case '\n', '\r' -> escaped.append(' ');
-                default -> escaped.append(character);
-            }
-        }
-
-        return escaped.toString().replaceAll("\\s{2,}", " ").trim();
-    }
-
-    private String escapeLatex(String text) {
-        if (text == null) {
-            return "";
-        }
-
-        return text
-                .replace("\\", "\\textbackslash{}")
-                .replace("&", "\\&")
-                .replace("%", "\\%")
-                .replace("$", "\\$")
-                .replace("#", "\\#")
-                .replace("_", "\\_")
-                .replace("{", "\\{")
-                .replace("}", "\\}")
-                .replace("~", "\\textasciitilde{}")
-                .replace("^", "\\textasciicircum{}");
     }
 
     /**
