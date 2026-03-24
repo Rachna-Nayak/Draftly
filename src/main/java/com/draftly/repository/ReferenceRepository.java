@@ -10,4 +10,5 @@ import java.util.List;
 public interface ReferenceRepository extends MongoRepository<Reference, String> {
     List<Reference> findByProjectId(String projectId);
     List<Reference> findByPaperId(String paperId);
+    void deleteByProjectIdAndCitationFormat(String projectId, String citationFormat);
 }

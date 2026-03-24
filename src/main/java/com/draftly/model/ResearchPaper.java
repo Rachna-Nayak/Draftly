@@ -17,12 +17,14 @@ public class ResearchPaper {
     private String id;
     private String projectId;
     private String title;
+    private String template; // IEEE, LNCS
     private List<PaperSection> sections = new ArrayList<>();
     private List<Feedback> feedbacks = new ArrayList<>();
     private String status; // DRAFT, IN_REVIEW, APPROVED, EXPORTED
 
     public ResearchPaper() {
         this.status = "DRAFT";
+        this.template = "IEEE";
     }
 
     public ResearchPaper(String projectId, String title) {
@@ -41,6 +43,9 @@ public class ResearchPaper {
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
+
+    public String getTemplate() { return template; }
+    public void setTemplate(String template) { this.template = template; }
 
     public List<PaperSection> getSections() { return sections; }
     public void setSections(List<PaperSection> sections) { this.sections = sections; }
