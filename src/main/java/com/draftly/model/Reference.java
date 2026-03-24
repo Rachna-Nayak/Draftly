@@ -15,6 +15,8 @@ public class Reference {
     private String paperId;
     private String citationFormat; // APA, MLA, IEEE
     private String formattedCitation;
+    private Integer referenceNumber; // Number used in manuscript citation markers, e.g., [1]
+    private String bibtexKey; // Citation key used in .bib, e.g., smith2024
 
     public Reference() {}
 
@@ -41,4 +43,10 @@ public class Reference {
 
     public String getFormattedCitation() { return formattedCitation; }
     public void setFormattedCitation(String formattedCitation) { this.formattedCitation = formattedCitation; }
+
+    public Integer getReferenceNumber() { return referenceNumber; }
+    public void setReferenceNumber(Integer referenceNumber) { this.referenceNumber = referenceNumber; }
+
+    public String getBibtexKey() { return bibtexKey; }
+    public void setBibtexKey(String bibtexKey) { this.bibtexKey = bibtexKey; }
 }
