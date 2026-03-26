@@ -51,4 +51,13 @@ public class ExportController {
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(latex);
     }
+
+    @GetMapping("/bib/{paperId}")
+    public ResponseEntity<String> exportBib(@PathVariable String paperId) {
+        String bib = exportService.exportBibForPaper(paperId);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=references.bib")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(bib);
+    }
 }
