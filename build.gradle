@@ -14,6 +14,21 @@ java {
 	}
 }
 
+// Specify the main class for Spring Boot
+springBoot {
+	mainClass = 'com.draftly.DraftlyApplication'
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.release = 21
+}
+
+tasks.withType(Test).configureEach {
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
 repositories {
 	mavenCentral()
 }
