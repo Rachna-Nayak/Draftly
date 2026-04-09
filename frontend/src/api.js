@@ -1,9 +1,37 @@
 import axios from 'axios';
+import { clearAuthSession, getSessionToken } from './authStorage';
 
 const api = axios.create({
   baseURL: '/api',
   headers: { 'Content-Type': 'application/json' },
 });
+
+api.interceptors.request.use((config) => {
+  const token = getSessionToken();
+  if (token) {
+    config.headers['X-Session-Token'] = token;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error?.response?.status === 401) {
+      clearAuthSession();
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Authentication (FR1)
+export const registerUser = (data) => api.post('/auth/register', data);
+
+export const loginUser = (data) => api.post('/auth/login', data);
+
+export const logoutUser = () => api.post('/auth/logout');
+
+export const getCurrentUser = () => api.get('/auth/me');
 
 // ── UC1: Projects ──
 export const getProjects = (ownerId = 'default') =>

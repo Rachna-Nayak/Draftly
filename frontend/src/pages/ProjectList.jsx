@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getProjects, deleteProject } from '../api';
+import { getCurrentUserId } from '../authStorage';
 
 export default function ProjectList() {
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
-    getProjects().then((res) => setProjects(res.data));
+    const ownerId = getCurrentUserId();
+    if (!ownerId) {
+      setProjects([]);
+      return;
+    }
+    getProjects(ownerId).then((res) => setProjects(res.data));
   }, []);
 
   const handleDelete = async (id) => {
