@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createProject } from '../api';
+import { getCurrentUserId } from '../authStorage';
 
 export default function ProjectCreate() {
   const navigate = useNavigate();
@@ -8,7 +9,8 @@ export default function ProjectCreate() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createProject({ ...form, ownerId: 'default' });
+    const ownerId = getCurrentUserId();
+    await createProject({ ...form, ownerId: ownerId || 'default' });
     navigate('/projects');
   };
 

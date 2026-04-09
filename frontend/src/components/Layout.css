@@ -13,6 +13,13 @@ body {
   align-items: center;
   gap: 2rem;
 }
+.navbar .nav-user {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  color: #ecf0f1;
+}
 .navbar a {
   color: #ecf0f1;
   text-decoration: none;
@@ -151,3 +158,16 @@ th { background: #f8f9fa; font-weight: 600; }
 }
 
 .actions { display: flex; gap: 0.5rem; margin-top: 0.8rem; }
+
+.auth-card {
+  max-width: 520px;
+}
+
+.error-text {
+  color: #c0392b;
+  margin: 0.5rem 0 1rem;
+}
+
+.auth-hint {
+  margin-top: 1rem;
+}

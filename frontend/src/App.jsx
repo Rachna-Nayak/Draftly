@@ -1,6 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import Register from './pages/Register';
 import ProjectList from './pages/ProjectList';
 import ProjectCreate from './pages/ProjectCreate';
 import ProjectView from './pages/ProjectView';
@@ -13,39 +16,45 @@ import PaperCreate from './pages/PaperCreate';
 import PaperView from './pages/PaperView';
 import PlagiarismReport from './pages/PlagiarismReport';
 import ExportReadiness from './pages/ExportReadiness';
+import './components/Layout.css';
 import './App.css';
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
-          {/* Home */}
-          <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-          {/* UC1: Projects */}
-          <Route path="/projects" element={<ProjectList />} />
-          <Route path="/projects/new" element={<ProjectCreate />} />
-          <Route path="/projects/:id" element={<ProjectView />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            {/* Home */}
+            <Route path="/" element={<Home />} />
 
-          {/* UC2: Search  |  UC3: Credibility */}
-          <Route path="/search" element={<Search />} />
-          <Route path="/search/credibility/:paperId" element={<Credibility />} />
+            {/* UC1: Projects */}
+            <Route path="/projects" element={<ProjectList />} />
+            <Route path="/projects/new" element={<ProjectCreate />} />
+            <Route path="/projects/:id" element={<ProjectView />} />
 
-          {/* UC4: References */}
-          <Route path="/projects/:projectId/references" element={<ReferenceList />} />
-          <Route path="/projects/:projectId/references/suggestions" element={<ReferenceSuggestions />} />
+            {/* UC2: Search  |  UC3: Credibility */}
+            <Route path="/search" element={<Search />} />
+            <Route path="/search/credibility/:paperId" element={<Credibility />} />
 
-          {/* UC6: Papers & Feedback */}
-          <Route path="/projects/:projectId/papers" element={<PaperList />} />
-          <Route path="/projects/:projectId/papers/new" element={<PaperCreate />} />
-          <Route path="/papers/:paperId" element={<PaperView />} />
+            {/* UC4: References */}
+            <Route path="/projects/:projectId/references" element={<ReferenceList />} />
+            <Route path="/projects/:projectId/references/suggestions" element={<ReferenceSuggestions />} />
 
-          {/* UC7: Plagiarism */}
-          <Route path="/papers/:paperId/plagiarism" element={<PlagiarismReport />} />
+            {/* UC6: Papers & Feedback */}
+            <Route path="/projects/:projectId/papers" element={<PaperList />} />
+            <Route path="/projects/:projectId/papers/new" element={<PaperCreate />} />
+            <Route path="/papers/:paperId" element={<PaperView />} />
 
-          {/* UC8: Export */}
-          <Route path="/papers/:paperId/export" element={<ExportReadiness />} />
+            {/* UC7: Plagiarism */}
+            <Route path="/papers/:paperId/plagiarism" element={<PlagiarismReport />} />
+
+            {/* UC8: Export */}
+            <Route path="/papers/:paperId/export" element={<ExportReadiness />} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
