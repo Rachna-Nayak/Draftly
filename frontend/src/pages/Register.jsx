@@ -38,9 +38,26 @@ export default function Register() {
   };
 
   return (
-    <>
-      <h1>Create your Draftly account</h1>
+    <section className="auth-shell">
+      <div className="auth-hero-panel">
+        <p className="auth-kicker">Research Onboarding</p>
+        <h1>Create your Draftly account</h1>
+        <p className="auth-subtitle">
+          Join as an author, reviewer, or administrator and start collaborating on academic writing workflows.
+        </p>
+        <ul className="auth-feature-list">
+          <li>Organize projects, papers, and references</li>
+          <li>Share section-level feedback and decisions</li>
+          <li>Prepare submissions with export validation</li>
+        </ul>
+      </div>
+
       <div className="card auth-card">
+        <div className="auth-card-head">
+          <h2>Register</h2>
+          <p>Create your profile to get started.</p>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Full name</label>
@@ -48,6 +65,7 @@ export default function Register() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               required
+              placeholder="Your name"
             />
           </div>
 
@@ -58,6 +76,7 @@ export default function Register() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
+              placeholder="you@university.edu"
             />
           </div>
 
@@ -69,6 +88,7 @@ export default function Register() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
               minLength={8}
+              placeholder="At least 8 characters"
             />
           </div>
 
@@ -88,7 +108,7 @@ export default function Register() {
 
           {error && <p className="error-text">{error}</p>}
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
+          <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
             {loading ? 'Creating account...' : 'Create account'}
           </button>
         </form>
@@ -97,6 +117,6 @@ export default function Register() {
           Already have an account? <Link to="/login">Sign in</Link>
         </p>
       </div>
-    </>
+    </section>
   );
 }

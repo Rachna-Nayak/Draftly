@@ -1,13 +1,14 @@
 package com.draftly.service;
 
-import com.draftly.model.Session;
-import com.draftly.repository.SessionRepository;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+
+import com.draftly.model.Session;
+import com.draftly.repository.SessionRepository;
 
 /**
  * Service for user session lifecycle management (FR1).
@@ -32,6 +33,12 @@ public class SessionService {
         return sessionRepository.findByToken(token);
     }
 
+    public Optional<Session> getValidSessionByToken(String token) {
+        return sessionRepository.findByToken(token)
+                .filter(Session::isActive)
+                .filter(session -> session.getExpiresAt() != null && session.getExpiresAt().isAfter(LocalDateTime.now()));
+    }
+
     public List<Session> getByUserId(String userId) {
         return sessionRepository.findByUserId(userId);
     }
@@ -45,6 +52,15 @@ public class SessionService {
                 .orElseThrow(() -> new IllegalArgumentException("Session not found for token: " + token));
         session.setActive(false);
         return sessionRepository.save(session);
+    }
+
+    public void deactivateSessionIfPresent(String token) {
+        sessionRepository.findByToken(token).ifPresent(session -> {
+            if (session.isActive()) {
+                session.setActive(false);
+                sessionRepository.save(session);
+            }
+        });
     }
 
     public int cleanupExpiredSessions() {

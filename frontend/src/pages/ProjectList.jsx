@@ -8,11 +8,7 @@ export default function ProjectList() {
 
   useEffect(() => {
     const ownerId = getCurrentUserId();
-    if (!ownerId) {
-      setProjects([]);
-      return;
-    }
-    getProjects(ownerId).then((res) => setProjects(res.data));
+    getProjects(ownerId || 'default').then((res) => setProjects(res.data));
   }, []);
 
   const handleDelete = async (id) => {
