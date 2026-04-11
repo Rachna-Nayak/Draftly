@@ -29,9 +29,26 @@ export default function Login() {
   };
 
   return (
-    <>
-      <h1>Sign in to Draftly</h1>
+    <section className="auth-shell">
+      <div className="auth-hero-panel">
+        <p className="auth-kicker">Academic Workspace</p>
+        <h1>Welcome back to Draftly</h1>
+        <p className="auth-subtitle">
+          Continue your research projects, track paper progress, and prepare export-ready submissions.
+        </p>
+        <ul className="auth-feature-list">
+          <li>Project and paper workflow in one place</li>
+          <li>Credibility, references, and plagiarism checkpoints</li>
+          <li>Readiness validation before final export</li>
+        </ul>
+      </div>
+
       <div className="card auth-card">
+        <div className="auth-card-head">
+          <h2>Sign in</h2>
+          <p>Use your account details to continue.</p>
+        </div>
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>
@@ -40,6 +57,7 @@ export default function Login() {
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
               required
+              placeholder="you@university.edu"
             />
           </div>
           <div className="form-group">
@@ -50,12 +68,13 @@ export default function Login() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
               required
               minLength={8}
+              placeholder="Enter your password"
             />
           </div>
 
           {error && <p className="error-text">{error}</p>}
 
-          <button className="btn btn-primary" type="submit" disabled={loading}>
+          <button className="btn btn-primary auth-submit" type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
@@ -64,6 +83,6 @@ export default function Login() {
           Need an account? <Link to="/register">Create one</Link>
         </p>
       </div>
-    </>
+    </section>
   );
 }

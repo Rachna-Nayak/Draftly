@@ -42,3 +42,10 @@ create-sample-papers.py
 DirectConversionTest.java
 SimpleConverter.java
 SimpleLatexTest.java
+
+### Environment & Credentials ###
+.env
+.env.local
+.env.*.local
+src/main/resources/application.properties
+!src/main/resources/application.properties.example
