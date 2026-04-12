@@ -16,6 +16,13 @@ import PaperCreate from './pages/PaperCreate';
 import PaperView from './pages/PaperView';
 import PlagiarismReport from './pages/PlagiarismReport';
 import ExportReadiness from './pages/ExportReadiness';
+import MetricsDashboard from './pages/MetricsDashboard';
+import AnalyticsPage from './pages/AnalyticsPage';
+import NotificationCenter from './pages/NotificationCenter';
+import ReviewQueue from './pages/ReviewQueue';
+import SubmissionList from './pages/SubmissionList';
+import SubmissionCreate from './pages/SubmissionCreate';
+import ReviewerAssignment from './pages/ReviewerAssignment';
 import './components/Layout.css';
 import './App.css';
 
@@ -49,11 +56,22 @@ export default function App() {
             <Route path="/projects/:projectId/papers/new" element={<PaperCreate />} />
             <Route path="/papers/:paperId" element={<PaperView />} />
 
+            {/* Submissions */}
+            <Route path="/submissions" element={<SubmissionList />} />
+            <Route path="/submissions/new" element={<SubmissionCreate />} />
+            <Route path="/reviewer-assignment" element={<ReviewerAssignment />} />
+
             {/* UC7: Plagiarism */}
             <Route path="/papers/:paperId/plagiarism" element={<PlagiarismReport />} />
 
             {/* UC8: Export */}
             <Route path="/papers/:paperId/export" element={<ExportReadiness />} />
+
+            {/* Metrics */}
+            <Route path="/metrics" element={<MetricsDashboard />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />
+            <Route path="/notifications" element={<NotificationCenter />} />
+            <Route path="/review-queue" element={<ReviewQueue />} />
           </Route>
         </Route>
       </Routes>
