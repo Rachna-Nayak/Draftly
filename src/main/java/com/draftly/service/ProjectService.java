@@ -54,6 +54,13 @@ public class ProjectService {
     }
 
     /**
+     * Get all projects across all users.
+     */
+    public List<ResearchProject> getAllProjects() {
+        return projectRepository.findAll();
+    }
+
+    /**
      * Get a project by ID.
      */
     public Optional<ResearchProject> getProjectById(String projectId) {

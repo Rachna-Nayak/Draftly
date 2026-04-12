@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.ResearchPaper;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.FeedbackService;
 import com.draftly.service.ResearchPaperService;
 import org.springframework.http.ResponseEntity;
@@ -28,11 +30,13 @@ public class PaperController {
     }
 
     @GetMapping("/project/{projectId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<ResearchPaper> listPapers(@PathVariable String projectId) {
         return researchPaperService.getPapersByProject(projectId);
     }
 
     @PostMapping
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public ResearchPaper createPaper(@RequestBody Map<String, String> body) {
         return researchPaperService.createPaper(body.get("projectId"), body.get("title"));
     }
@@ -42,6 +46,7 @@ public class PaperController {
      * Accepts multipart form data with the file, projectId, title, and optional template (IEEE or LNCS).
      */
     @PostMapping("/upload")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public ResponseEntity<?> uploadDocx(
             @RequestParam("file") MultipartFile file,
             @RequestParam String projectId,
@@ -86,6 +91,7 @@ public class PaperController {
 
 
     @GetMapping("/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<ResearchPaper> getPaper(@PathVariable String paperId) {
         return researchPaperService.getPaperById(paperId)
                 .map(ResponseEntity::ok)
@@ -93,6 +99,7 @@ public class PaperController {
     }
 
     @PostMapping("/{paperId}/sections")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public ResearchPaper addSection(@PathVariable String paperId, @RequestBody Map<String, Object> body) {
         return researchPaperService.addSection(
             paperId,
@@ -103,6 +110,7 @@ public class PaperController {
     }
 
     @PostMapping("/{paperId}/feedback")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public ResearchPaper submitFeedback(@PathVariable String paperId, @RequestBody Map<String, String> body) {
         return feedbackService.submitFeedback(
             paperId,
@@ -115,11 +123,13 @@ public class PaperController {
     }
 
     @PostMapping("/{paperId}/approve")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public ResearchPaper approvePaper(@PathVariable String paperId) {
         return feedbackService.approvePaper(paperId);
     }
 
     @DeleteMapping("/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public ResponseEntity<Void> deletePaper(@PathVariable String paperId) {
         researchPaperService.deletePaper(paperId);
         return ResponseEntity.noContent().build();

@@ -4,9 +4,9 @@ import { registerUser } from '../api';
 import { setAuthSession } from '../authStorage';
 
 const roleOptions = [
-  { label: 'Author', value: 'STUDENT_RESEARCHER' },
-  { label: 'Reviewer', value: 'FACULTY_SUPERVISOR' },
-  { label: 'Administrator', value: 'SYSTEM_ADMINISTRATOR' },
+  { label: 'Author', value: 'AUTHOR' },
+  { label: 'Reviewer', value: 'REVIEWER' },
+  { label: 'Administrator', value: 'ADMIN' },
 ];
 
 export default function Register() {
@@ -15,7 +15,7 @@ export default function Register() {
     name: '',
     email: '',
     password: '',
-    role: 'STUDENT_RESEARCHER',
+    role: 'AUTHOR',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
