@@ -10,7 +10,7 @@ export default function Layout() {
   const currentUser = getCurrentUser();
   const currentRole = getCurrentUserRole();
   const isDevAuthBypassEnabled = import.meta.env.VITE_BYPASS_AUTH === 'true';
-  const canAccess = (roles) => isDevAuthBypassEnabled || hasAnyRole(roles);
+  const canAccess = (roles) => hasAnyRole(roles);
 
   const handleLogout = async () => {
     try {
@@ -56,13 +56,11 @@ export default function Layout() {
 
         <div className="nav-user">
           <span>
-            {isDevAuthBypassEnabled
-              ? 'Demo mode'
-              : `${currentUser?.name || currentUser?.email}${currentRole ? ` (${getRoleDisplayName(currentRole)})` : ''}`}
+            {currentUser
+              ? `${currentUser?.name || currentUser?.email}${currentRole ? ` (${getRoleDisplayName(currentRole)})` : ''}`
+              : (isDevAuthBypassEnabled ? 'Demo mode' : 'Signed in')}
           </span>
-          {!isDevAuthBypassEnabled && (
-            <button className="btn btn-secondary" type="button" onClick={handleLogout}>Logout</button>
-          )}
+          <button className="btn btn-secondary" type="button" onClick={handleLogout}>Logout</button>
         </div>
       </nav>
       <main className="container">
