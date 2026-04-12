@@ -2,6 +2,8 @@ package com.draftly.controller;
 
 import com.draftly.model.CredibilityReport;
 import com.draftly.model.Paper;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.CredibilityService;
 import com.draftly.service.SearchService;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +29,7 @@ public class SearchController {
     }
 
     @GetMapping
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<Paper> searchPapers(@RequestParam String keywords,
                                     @RequestParam(required = false) String domain,
                                     @RequestParam(required = false) Integer startYear,
@@ -37,11 +40,13 @@ public class SearchController {
     }
 
     @GetMapping("/all")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<Paper> getAllPapers() {
         return searchService.getAllPapers();
     }
 
     @GetMapping("/credibility/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<Map<String, Object>> evaluateCredibility(@PathVariable String paperId) {
         return searchService.getPaperById(paperId)
                 .map(paper -> {

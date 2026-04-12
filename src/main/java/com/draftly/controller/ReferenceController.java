@@ -2,6 +2,8 @@ package com.draftly.controller;
 
 import com.draftly.model.Paper;
 import com.draftly.model.Reference;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.ReferenceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,11 +25,13 @@ public class ReferenceController {
     }
 
     @GetMapping("/{projectId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<Reference> listReferences(@PathVariable String projectId) {
         return referenceService.getReferencesByProject(projectId);
     }
 
     @PostMapping
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public Reference addReference(@RequestBody Map<String, String> body) {
         return referenceService.addReference(
             body.get("projectId"),
@@ -37,12 +41,14 @@ public class ReferenceController {
     }
 
     @DeleteMapping("/{referenceId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public ResponseEntity<Void> removeReference(@PathVariable String referenceId) {
         referenceService.removeReference(referenceId);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{projectId}/suggestions")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<Paper> suggestReferences(@PathVariable String projectId) {
         return referenceService.suggestReferences(projectId);
     }

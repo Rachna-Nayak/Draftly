@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.NotificationLog;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.NotificationService;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,11 +23,13 @@ public class NotificationController {
     }
 
     @GetMapping
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public List<NotificationLog> listAll() {
         return notificationService.getAllLogs();
     }
 
     @PostMapping("/send")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public NotificationLog send(@RequestBody Map<String, String> body) {
         return notificationService.sendNotification(
                 body.get("actorUserId"),
@@ -37,6 +41,7 @@ public class NotificationController {
     }
 
     @PostMapping("/events/paper-submitted")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public NotificationLog notifyPaperSubmitted(@RequestBody Map<String, String> body) {
         return notificationService.notifyPaperSubmitted(
                 body.get("authorUserId"),
@@ -45,6 +50,7 @@ public class NotificationController {
     }
 
     @PostMapping("/events/reviewer-assigned")
+    @RequireRoles({UserRole.ADMIN})
     public NotificationLog notifyReviewerAssigned(@RequestBody Map<String, String> body) {
         return notificationService.notifyReviewerAssigned(
                 body.get("adminUserId"),
@@ -54,6 +60,7 @@ public class NotificationController {
     }
 
     @PostMapping("/events/feedback-submitted")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public NotificationLog notifyFeedbackSubmitted(@RequestBody Map<String, String> body) {
         return notificationService.notifyFeedbackSubmitted(
                 body.get("reviewerUserId"),
@@ -63,6 +70,7 @@ public class NotificationController {
     }
 
     @PostMapping("/events/review-completed")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public NotificationLog notifyReviewCompleted(@RequestBody Map<String, String> body) {
         return notificationService.notifyReviewCompleted(
                 body.get("reviewerUserId"),
