@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.ReviewSchedule;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.ReviewScheduleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,7 @@ public class ReviewScheduleController {
     }
 
     @PostMapping
+    @RequireRoles({UserRole.ADMIN})
     public ReviewSchedule createSchedule(@RequestBody Map<String, String> body) {
         return reviewScheduleService.createSchedule(
                 body.get("conferenceId"),
@@ -36,11 +39,13 @@ public class ReviewScheduleController {
     }
 
     @GetMapping
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public List<ReviewSchedule> listSchedules() {
         return reviewScheduleService.getAllSchedules();
     }
 
     @GetMapping("/{id}")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<ReviewSchedule> getById(@PathVariable String id) {
         return reviewScheduleService.getById(id)
                 .map(ResponseEntity::ok)
@@ -48,26 +53,31 @@ public class ReviewScheduleController {
     }
 
     @GetMapping("/conference/{conferenceId}")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public List<ReviewSchedule> getByConferenceId(@PathVariable String conferenceId) {
         return reviewScheduleService.getByConferenceId(conferenceId);
     }
 
     @GetMapping("/submission/{submissionId}")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public List<ReviewSchedule> getBySubmissionId(@PathVariable String submissionId) {
         return reviewScheduleService.getBySubmissionId(submissionId);
     }
 
     @GetMapping("/reviewer/{reviewerUserId}")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public List<ReviewSchedule> getByReviewerUserId(@PathVariable String reviewerUserId) {
         return reviewScheduleService.getByReviewerUserId(reviewerUserId);
     }
 
     @PostMapping("/{id}/complete")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public ReviewSchedule markCompleted(@PathVariable String id) {
         return reviewScheduleService.markCompleted(id);
     }
 
     @DeleteMapping("/{id}")
+    @RequireRoles({UserRole.ADMIN})
     public ResponseEntity<Void> deleteSchedule(@PathVariable String id) {
         reviewScheduleService.deleteSchedule(id);
         return ResponseEntity.noContent().build();

@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.ChangeLog;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.SessionLogService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/session-logs")
+@RequireRoles({UserRole.ADMIN})
 public class SessionLogController {
 
     private final SessionLogService sessionLogService;

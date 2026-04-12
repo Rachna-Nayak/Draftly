@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   getCurrentUserId,
   getCurrentUser,
+  getCurrentUserRole,
 } from '../authStorage';
 import {
   getSubmission,
@@ -31,8 +32,10 @@ function statusTone(status) {
 export default function SubmissionList() {
   const currentUser = getCurrentUser();
   const currentUserId = getCurrentUserId();
+  const currentRole = getCurrentUserRole();
+  const isAdmin = currentRole === 'ADMIN';
 
-  const [queryType, setQueryType] = useState('authorId');
+  const [queryType, setQueryType] = useState(isAdmin ? 'all' : 'authorId');
   const [authorId, setAuthorId] = useState(currentUserId || '');
   const [projectId, setProjectId] = useState('');
   const [submissions, setSubmissions] = useState([]);
@@ -50,7 +53,9 @@ export default function SubmissionList() {
     try {
       const params = queryType === 'projectId'
         ? { projectId: projectId.trim() }
-        : { authorId: authorId.trim() || currentUserId || 'default' };
+        : queryType === 'all'
+          ? {}
+          : { authorId: authorId.trim() || currentUserId || 'default' };
       const response = await getSubmissions(params);
       const list = Array.isArray(response?.data) ? response.data : [];
       setSubmissions(list);
@@ -179,6 +184,7 @@ export default function SubmissionList() {
           <div className="form-group">
             <label htmlFor="queryType">Search By</label>
             <select id="queryType" value={queryType} onChange={(event) => setQueryType(event.target.value)}>
+              {isAdmin && <option value="all">All</option>}
               <option value="authorId">Author</option>
               <option value="projectId">Project</option>
             </select>
@@ -193,7 +199,7 @@ export default function SubmissionList() {
                 placeholder={currentUser?.id || currentUserId || 'author-1'}
               />
             </div>
-          ) : (
+          ) : queryType === 'projectId' ? (
             <div className="form-group">
               <label htmlFor="projectId">Project ID</label>
               <input
@@ -202,6 +208,11 @@ export default function SubmissionList() {
                 onChange={(event) => setProjectId(event.target.value)}
                 placeholder="project-1"
               />
+            </div>
+          ) : (
+            <div className="form-group">
+              <label>Scope</label>
+              <input value="All submissions" disabled readOnly />
             </div>
           )}
           <div className="form-group" style={{ alignSelf: 'end' }}>

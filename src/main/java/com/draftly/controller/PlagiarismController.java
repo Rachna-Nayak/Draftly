@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.PlagiarismReport;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.PlagiarismService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +20,7 @@ public class PlagiarismController {
     }
 
     @GetMapping("/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public PlagiarismReport checkPlagiarism(@PathVariable String paperId) {
         return plagiarismService.checkPlagiarism(paperId);
     }

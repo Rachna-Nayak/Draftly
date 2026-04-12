@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.Session;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.SessionService;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,6 +14,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/sessions")
+@RequireRoles({UserRole.ADMIN})
 public class SessionController {
 
     private final SessionService sessionService;

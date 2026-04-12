@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.MetricsDashboard;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.MetricsDashboardService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,16 +23,19 @@ public class MetricsDashboardController {
     }
 
     @PostMapping
+    @RequireRoles({UserRole.ADMIN})
     public MetricsDashboard createDashboard(@RequestBody MetricsDashboard dashboard) {
         return metricsDashboardService.createDashboard(dashboard);
     }
 
     @GetMapping
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<MetricsDashboard> listDashboards() {
         return metricsDashboardService.getAllDashboards();
     }
 
     @GetMapping("/{id}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<MetricsDashboard> getById(@PathVariable String id) {
         return metricsDashboardService.getById(id)
                 .map(ResponseEntity::ok)
@@ -38,6 +43,7 @@ public class MetricsDashboardController {
     }
 
     @GetMapping("/scope")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<MetricsDashboard> getByScope(@RequestParam String scopeType,
                                                        @RequestParam String scopeId) {
         return metricsDashboardService.getByScope(scopeType, scopeId)
@@ -46,6 +52,7 @@ public class MetricsDashboardController {
     }
 
     @PutMapping("/{id}")
+    @RequireRoles({UserRole.ADMIN})
     public MetricsDashboard updateDashboard(@PathVariable String id,
                                             @RequestBody MetricsDashboard dashboard) {
         dashboard.setId(id);
@@ -53,6 +60,7 @@ public class MetricsDashboardController {
     }
 
     @DeleteMapping("/{id}")
+    @RequireRoles({UserRole.ADMIN})
     public ResponseEntity<Void> deleteDashboard(@PathVariable String id) {
         metricsDashboardService.deleteDashboard(id);
         return ResponseEntity.noContent().build();
