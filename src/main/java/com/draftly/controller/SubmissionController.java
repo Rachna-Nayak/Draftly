@@ -16,7 +16,11 @@ import com.draftly.model.PublishedPaper;
 import com.draftly.model.Review;
 import com.draftly.model.Submission;
 import com.draftly.model.SubmissionFeedback;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.SubmissionService;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api/submissions")
@@ -29,6 +33,7 @@ public class SubmissionController {
     }
 
     @PostMapping
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public Submission createSubmission(@RequestBody Map<String, String> body) {
         return submissionService.createSubmission(
                 body.get("projectId"),
@@ -41,43 +46,63 @@ public class SubmissionController {
     }
 
     @GetMapping
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<Submission> listSubmissions(@RequestParam(required = false) String authorId,
-                                            @RequestParam(required = false) String projectId) {
+                                            @RequestParam(required = false) String projectId,
+                                            HttpServletRequest request) {
         if (authorId != null && !authorId.isBlank()) {
             return submissionService.getSubmissionsByAuthor(authorId);
         }
         if (projectId != null && !projectId.isBlank()) {
             return submissionService.getSubmissionsByProject(projectId);
         }
-        throw new IllegalArgumentException("Either authorId or projectId is required");
+
+        UserRole currentRole = (UserRole) request.getAttribute("currentUserRole");
+        String currentUserId = (String) request.getAttribute("currentUserId");
+
+        if (currentRole != null && currentRole.matches(UserRole.ADMIN)) {
+            return submissionService.getAllSubmissions();
+        }
+
+        if (currentUserId != null && !currentUserId.isBlank()) {
+            return submissionService.getSubmissionsByAuthor(currentUserId);
+        }
+
+        throw new IllegalArgumentException("Unable to determine submissions scope for current user");
     }
 
     @GetMapping("/{submissionId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public Submission getSubmission(@PathVariable String submissionId) {
         return submissionService.getSubmissionById(submissionId);
     }
 
     @PostMapping("/{submissionId}/versions")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public PaperVersion uploadVersion(@PathVariable String submissionId, @RequestBody Map<String, String> body) {
         return submissionService.uploadPaperVersion(submissionId, body.get("filePath"), body.get("notes"));
     }
 
     @GetMapping("/{submissionId}/versions")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<PaperVersion> listVersions(@PathVariable String submissionId) {
         return submissionService.getVersions(submissionId);
     }
 
     @PostMapping("/{submissionId}/references")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public Submission attachReference(@PathVariable String submissionId, @RequestBody Map<String, String> body) {
         return submissionService.attachReference(submissionId, body.get("referenceId"));
     }
 
     @PostMapping("/{submissionId}/submit")
+    @RequireRoles({UserRole.AUTHOR, UserRole.ADMIN})
     public Submission submitPaper(@PathVariable String submissionId) {
         return submissionService.submitPaper(submissionId);
     }
 
     @PostMapping("/{submissionId}/reviews")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public Review addReview(@PathVariable String submissionId, @RequestBody Map<String, Object> body) {
         int rating = body.get("rating") == null ? 0 : ((Number) body.get("rating")).intValue();
         return submissionService.addReview(
@@ -90,21 +115,25 @@ public class SubmissionController {
     }
 
     @GetMapping("/{submissionId}/reviews")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<Review> listReviews(@PathVariable String submissionId) {
         return submissionService.getReviews(submissionId);
     }
 
     @PostMapping("/{submissionId}/feedback")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public SubmissionFeedback storeFeedback(@PathVariable String submissionId, @RequestBody Map<String, String> body) {
         return submissionService.storeFeedback(submissionId, body.get("reviewerId"), body.get("message"));
     }
 
     @GetMapping("/{submissionId}/feedback")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<SubmissionFeedback> listFeedback(@PathVariable String submissionId) {
         return submissionService.getFeedback(submissionId);
     }
 
     @PostMapping("/{submissionId}/publish")
+    @RequireRoles({UserRole.ADMIN})
     public PublishedPaper publishSubmission(@PathVariable String submissionId, @RequestBody Map<String, Object> body) {
         int publicationYear = body.get("publicationYear") == null ? 0 : ((Number) body.get("publicationYear")).intValue();
         return submissionService.publishSubmission(
@@ -116,6 +145,7 @@ public class SubmissionController {
     }
 
     @GetMapping("/{submissionId}/published")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public PublishedPaper getPublishedPaper(@PathVariable String submissionId) {
         return submissionService.getPublishedPaper(submissionId);
     }

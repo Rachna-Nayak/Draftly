@@ -35,6 +35,35 @@ server.port=8080
 
 If you need step-by-step Atlas setup, see `MONGODB_ATLAS_SETUP.md`.
 
+## Role-Based Access Control (RBAC)
+
+Draftly now uses three normalized roles:
+
+- `AUTHOR`
+- `REVIEWER`
+- `ADMIN`
+
+Legacy role values are still accepted and mapped automatically:
+
+- `STUDENT_RESEARCHER` → `AUTHOR`
+- `FACULTY_SUPERVISOR` → `REVIEWER`
+- `SYSTEM_ADMINISTRATOR` → `ADMIN`
+
+### Access Matrix
+
+- **AUTHOR**
+	- Create/manage projects, papers, references, and submissions
+	- Use search, credibility, plagiarism, export, and metrics views
+	- Cannot access reviewer assignment, analytics admin logs, or session admin endpoints
+
+- **REVIEWER**
+	- Access review queue, review schedules, review/feedback operations
+	- Access notifications and read-only project/submission/search/export views
+	- Cannot perform admin-only management actions
+
+- **ADMIN**
+	- Full platform access, including reviewer assignment, analytics/logs, conference/session management
+
 ## Running the App (Development)
 
 Run backend and frontend in separate terminals.

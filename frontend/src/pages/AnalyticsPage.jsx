@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getAuditLogs, getMetricsDashboards } from '../api';
+import {
+  getAllPapers,
+  getAuditLogs,
+  getMetricsDashboards,
+  getProjects,
+  getSubmissions,
+} from '../api';
 
 function toNumber(value) {
   const n = Number(value);
@@ -25,6 +31,9 @@ function normalizeDateKey(value) {
 export default function AnalyticsPage() {
   const [dashboards, setDashboards] = useState([]);
   const [logs, setLogs] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
+  const [papers, setPapers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -32,13 +41,19 @@ export default function AnalyticsPage() {
     setLoading(true);
     setError('');
     try {
-      const [dashboardsRes, logsRes] = await Promise.all([
+      const [dashboardsRes, logsRes, projectsRes, submissionsRes, papersRes] = await Promise.all([
         getMetricsDashboards(),
         getAuditLogs(),
+        getProjects(),
+        getSubmissions({}),
+        getAllPapers(),
       ]);
 
       setDashboards(Array.isArray(dashboardsRes?.data) ? dashboardsRes.data : []);
       setLogs(Array.isArray(logsRes?.data) ? logsRes.data : []);
+      setProjects(Array.isArray(projectsRes?.data) ? projectsRes.data : []);
+      setSubmissions(Array.isArray(submissionsRes?.data) ? submissionsRes.data : []);
+      setPapers(Array.isArray(papersRes?.data) ? papersRes.data : []);
     } catch (err) {
       const message =
         err?.response?.data?.message ||
@@ -47,6 +62,9 @@ export default function AnalyticsPage() {
       setError(message);
       setDashboards([]);
       setLogs([]);
+      setProjects([]);
+      setSubmissions([]);
+      setPapers([]);
     } finally {
       setLoading(false);
     }
@@ -58,14 +76,17 @@ export default function AnalyticsPage() {
 
   const summary = useMemo(() => {
     const dashboardsCount = dashboards.length;
-    const projectsTotal = dashboards.reduce((acc, item) => acc + toNumber(item.projectsCount), 0);
-    const submissionsTotal = dashboards.reduce((acc, item) => acc + toNumber(item.submissionsCount), 0);
+    const dashboardProjectsTotal = dashboards.reduce((acc, item) => acc + toNumber(item.projectsCount), 0);
+    const dashboardSubmissionsTotal = dashboards.reduce((acc, item) => acc + toNumber(item.submissionsCount), 0);
     const referencesTotal = dashboards.reduce((acc, item) => acc + toNumber(item.referencesCount), 0);
     const assignedReviews = dashboards.reduce((acc, item) => acc + toNumber(item.assignedReviewsCount), 0);
     const completedReviews = dashboards.reduce((acc, item) => acc + toNumber(item.completedReviewsCount), 0);
+    const projectsTotal = dashboardProjectsTotal || projects.length;
+    const submissionsTotal = dashboardSubmissionsTotal || submissions.length;
     const reviewCompletionPct = assignedReviews > 0
       ? Math.round((completedReviews / assignedReviews) * 100)
       : 0;
+    const papersTotal = papers.length;
 
     return {
       dashboardsCount,
@@ -75,8 +96,9 @@ export default function AnalyticsPage() {
       assignedReviews,
       completedReviews,
       reviewCompletionPct,
+      papersTotal,
     };
-  }, [dashboards]);
+  }, [dashboards, projects.length, submissions.length, papers.length]);
 
   const actionBreakdown = useMemo(() => {
     const counts = logs.reduce((acc, item) => {
@@ -105,8 +127,9 @@ export default function AnalyticsPage() {
       return acc;
     }, {});
 
-    logs.forEach((item) => {
-      const key = normalizeDateKey(item?.changedAt || item?.createdAt);
+    const source = logs.length ? logs : submissions;
+    source.forEach((item) => {
+      const key = normalizeDateKey(item?.changedAt || item?.createdAt || item?.updatedAt);
       if (key && Object.prototype.hasOwnProperty.call(counts, key)) {
         counts[key] += 1;
       }
@@ -117,7 +140,7 @@ export default function AnalyticsPage() {
       shortLabel: key ? key.slice(5) : 'N/A',
       count: counts[key] || 0,
     }));
-  }, [logs]);
+  }, [logs, submissions]);
 
   const maxDailyCount = useMemo(
     () => Math.max(1, ...dailyTrend.map((point) => point.count)),
@@ -173,8 +196,8 @@ export default function AnalyticsPage() {
               <p className="metric-value">{summary.submissionsTotal}</p>
             </div>
             <div className="card metric-card">
-              <p className="metric-label">References (Total)</p>
-              <p className="metric-value">{summary.referencesTotal}</p>
+              <p className="metric-label">Papers (Indexed)</p>
+              <p className="metric-value">{summary.papersTotal}</p>
             </div>
             <div className="card metric-card">
               <p className="metric-label">Review Completion</p>
