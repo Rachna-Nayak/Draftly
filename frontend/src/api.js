@@ -60,8 +60,8 @@ export const notifyReviewCompleted = (data) =>
   api.post('/notifications/events/review-completed', data);
 
 // ── UC1: Projects ──
-export const getProjects = (ownerId = 'default') =>
-  api.get('/projects', { params: { ownerId } });
+export const getProjects = (ownerId) =>
+  api.get('/projects', { params: ownerId ? { ownerId } : {} });
 
 export const getProject = (id) => api.get(`/projects/${id}`);
 

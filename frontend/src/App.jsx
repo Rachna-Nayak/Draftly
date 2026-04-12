@@ -38,40 +38,51 @@ export default function App() {
             {/* Home */}
             <Route path="/" element={<Home />} />
 
-            {/* UC1: Projects */}
-            <Route path="/projects" element={<ProjectList />} />
-            <Route path="/projects/new" element={<ProjectCreate />} />
-            <Route path="/projects/:id" element={<ProjectView />} />
+            <Route element={<ProtectedRoute roles={['AUTHOR', 'REVIEWER', 'ADMIN']} />}>
+              {/* UC1: Projects */}
+              <Route path="/projects" element={<ProjectList />} />
+              <Route path="/projects/:id" element={<ProjectView />} />
 
-            {/* UC2: Search  |  UC3: Credibility */}
-            <Route path="/search" element={<Search />} />
-            <Route path="/search/credibility/:paperId" element={<Credibility />} />
+              {/* UC2: Search  |  UC3: Credibility */}
+              <Route path="/search" element={<Search />} />
+              <Route path="/search/credibility/:paperId" element={<Credibility />} />
 
-            {/* UC4: References */}
-            <Route path="/projects/:projectId/references" element={<ReferenceList />} />
-            <Route path="/projects/:projectId/references/suggestions" element={<ReferenceSuggestions />} />
+              {/* UC4: References */}
+              <Route path="/projects/:projectId/references" element={<ReferenceList />} />
+              <Route path="/projects/:projectId/references/suggestions" element={<ReferenceSuggestions />} />
 
-            {/* UC6: Papers & Feedback */}
-            <Route path="/projects/:projectId/papers" element={<PaperList />} />
-            <Route path="/projects/:projectId/papers/new" element={<PaperCreate />} />
-            <Route path="/papers/:paperId" element={<PaperView />} />
+              {/* UC6: Papers */}
+              <Route path="/projects/:projectId/papers" element={<PaperList />} />
+              <Route path="/papers/:paperId" element={<PaperView />} />
 
-            {/* Submissions */}
-            <Route path="/submissions" element={<SubmissionList />} />
-            <Route path="/submissions/new" element={<SubmissionCreate />} />
-            <Route path="/reviewer-assignment" element={<ReviewerAssignment />} />
+              {/* Submissions */}
+              <Route path="/submissions" element={<SubmissionList />} />
 
-            {/* UC7: Plagiarism */}
-            <Route path="/papers/:paperId/plagiarism" element={<PlagiarismReport />} />
+              {/* UC7: Plagiarism */}
+              <Route path="/papers/:paperId/plagiarism" element={<PlagiarismReport />} />
 
-            {/* UC8: Export */}
-            <Route path="/papers/:paperId/export" element={<ExportReadiness />} />
+              {/* UC8: Export */}
+              <Route path="/papers/:paperId/export" element={<ExportReadiness />} />
 
-            {/* Metrics */}
-            <Route path="/metrics" element={<MetricsDashboard />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/notifications" element={<NotificationCenter />} />
-            <Route path="/review-queue" element={<ReviewQueue />} />
+              {/* Metrics */}
+              <Route path="/metrics" element={<MetricsDashboard />} />
+            </Route>
+
+            <Route element={<ProtectedRoute roles={['AUTHOR', 'ADMIN']} />}>
+              <Route path="/projects/new" element={<ProjectCreate />} />
+              <Route path="/projects/:projectId/papers/new" element={<PaperCreate />} />
+              <Route path="/submissions/new" element={<SubmissionCreate />} />
+            </Route>
+
+            <Route element={<ProtectedRoute roles={['REVIEWER', 'ADMIN']} />}>
+              <Route path="/notifications" element={<NotificationCenter />} />
+              <Route path="/review-queue" element={<ReviewQueue />} />
+            </Route>
+
+            <Route element={<ProtectedRoute roles={['ADMIN']} />}>
+              <Route path="/reviewer-assignment" element={<ReviewerAssignment />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+            </Route>
           </Route>
         </Route>
       </Routes>

@@ -60,6 +60,10 @@ public class SubmissionService {
         return submissionRepository.findByAuthorId(authorId);
     }
 
+    public List<Submission> getAllSubmissions() {
+        return submissionRepository.findAll();
+    }
+
     public List<Submission> getSubmissionsByProject(String projectId) {
         return submissionRepository.findByProjectId(projectId);
     }

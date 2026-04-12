@@ -1,5 +1,7 @@
 package com.draftly.controller;
 
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.ExportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,12 +22,14 @@ public class ExportController {
     }
 
     @GetMapping("/readiness/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ExportService.ReadinessReport checkReadiness(@PathVariable String paperId,
                                                          @RequestParam String projectId) {
         return exportService.checkReadiness(paperId, projectId);
     }
 
     @GetMapping("/pdf/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<byte[]> exportPDF(@PathVariable String paperId) {
         byte[] pdf = exportService.exportAsPDF(paperId);
         return ResponseEntity.ok()
@@ -35,6 +39,7 @@ public class ExportController {
     }
 
     @GetMapping("/word/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<byte[]> exportWord(@PathVariable String paperId) {
         byte[] word = exportService.exportAsWord(paperId);
         return ResponseEntity.ok()
@@ -44,6 +49,7 @@ public class ExportController {
     }
 
     @GetMapping("/latex/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<String> exportLatex(@PathVariable String paperId) {
         String latex = exportService.exportAsLatex(paperId);
         return ResponseEntity.ok()
@@ -53,6 +59,7 @@ public class ExportController {
     }
 
     @GetMapping("/bib/{paperId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<String> exportBib(@PathVariable String paperId) {
         String bib = exportService.exportBibForPaper(paperId);
         return ResponseEntity.ok()
