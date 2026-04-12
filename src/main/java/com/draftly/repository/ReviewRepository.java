@@ -10,4 +10,6 @@ import com.draftly.model.Review;
 @Repository
 public interface ReviewRepository extends MongoRepository<Review, String> {
     List<Review> findBySubmissionId(String submissionId);
+
+    List<Review> findByReviewerId(String reviewerId);
 }
