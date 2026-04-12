@@ -36,3 +36,8 @@ export function getCurrentUserId() {
 export function getCurrentUserRole() {
   return getAuthSession()?.role || null;
 }
+
+export function hasAnyRole(roles = []) {
+  const currentRole = getCurrentUserRole();
+  return !!currentRole && roles.includes(currentRole);
+}

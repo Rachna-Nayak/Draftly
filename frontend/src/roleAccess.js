@@ -1,8 +1,21 @@
 export const USER_ROLES = {
-  AUTHOR: 'STUDENT_RESEARCHER',
-  REVIEWER: 'FACULTY_SUPERVISOR',
-  ADMIN: 'SYSTEM_ADMINISTRATOR',
+  AUTHOR: 'AUTHOR',
+  REVIEWER: 'REVIEWER',
+  ADMIN: 'ADMIN',
 };
+
+const LEGACY_TO_CANONICAL_ROLE = {
+  STUDENT_RESEARCHER: USER_ROLES.AUTHOR,
+  FACULTY_SUPERVISOR: USER_ROLES.REVIEWER,
+  SYSTEM_ADMINISTRATOR: USER_ROLES.ADMIN,
+};
+
+export function normalizeRole(role) {
+  if (!role) {
+    return null;
+  }
+  return LEGACY_TO_CANONICAL_ROLE[role] || role;
+}
 
 export const ROLE_HOME_PATHS = {
   [USER_ROLES.AUTHOR]: '/projects',
@@ -11,11 +24,11 @@ export const ROLE_HOME_PATHS = {
 };
 
 export function getRoleHomePath(role) {
-  return ROLE_HOME_PATHS[role] || '/projects';
+  return ROLE_HOME_PATHS[normalizeRole(role)] || '/projects';
 }
 
 export function getRoleDisplayName(role) {
-  switch (role) {
+  switch (normalizeRole(role)) {
     case USER_ROLES.AUTHOR:
       return 'Author';
     case USER_ROLES.REVIEWER:
@@ -28,11 +41,12 @@ export function getRoleDisplayName(role) {
 }
 
 export function getNavItemsForRole(role) {
+  const normalizedRole = normalizeRole(role);
   const baseItems = [
     { to: '/search', label: 'Search Literature' },
   ];
 
-  if (role === USER_ROLES.REVIEWER) {
+  if (normalizedRole === USER_ROLES.REVIEWER) {
     return [
       ...baseItems,
       { to: '/submissions', label: 'Submissions' },
@@ -40,7 +54,7 @@ export function getNavItemsForRole(role) {
     ];
   }
 
-  if (role === USER_ROLES.ADMIN) {
+  if (normalizedRole === USER_ROLES.ADMIN) {
     return [
       { to: '/projects', label: 'Projects' },
       ...baseItems,

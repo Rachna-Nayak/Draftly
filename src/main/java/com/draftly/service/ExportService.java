@@ -1,12 +1,5 @@
 package com.draftly.service;
 
-import com.draftly.model.PaperSection;
-import com.draftly.model.PlagiarismReport;
-import com.draftly.model.Reference;
-import com.draftly.model.ResearchPaper;
-import com.draftly.repository.ResearchPaperRepository;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -24,6 +17,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Service;
+
+import com.draftly.model.PaperSection;
+import com.draftly.model.PlagiarismReport;
+import com.draftly.model.Reference;
+import com.draftly.model.ResearchPaper;
+import com.draftly.repository.ResearchPaperRepository;
 
 /**
  * Export Service - Validates formatting and exports papers. (UC8)
@@ -67,9 +68,10 @@ public class ExportService {
         this.formatBuilders.put(lncsBuilder.getFormat(), lncsBuilder);
     }
 
-    /**
-     * UC8: Run a submission readiness check on the paper.
+    /*
+     UC8: Run a submission readiness check on the paper.
      */
+    
     public ReadinessReport checkReadiness(String researchPaperId, String projectId) {
         Optional<ResearchPaper> paperOpt = researchPaperRepository.findById(researchPaperId);
         if (paperOpt.isEmpty()) {
@@ -105,8 +107,8 @@ public class ExportService {
         return report;
     }
 
-    /**
-     * UC8: Export paper as PDF.
+    /*
+     UC8: Export paper as PDF.
      */
     public byte[] exportAsPDF(String researchPaperId) {
         ResearchPaper paper = researchPaperRepository.findById(researchPaperId)
@@ -139,17 +141,17 @@ public class ExportService {
         }
     }
 
-    /**
-     * UC8: Export paper as Word document.
+    /*
+     UC8: Export paper as Word document.
      */
     public byte[] exportAsWord(String researchPaperId) {
         // TODO: Implement Word export using Apache POI
         return new byte[0];
     }
 
-    /**
-     * UC8: Export paper as LaTeX.
-     * 
+    /*
+     UC8: Export paper as LaTeX.
+      
      * This method orchestrates the LaTeX export process:
      * 1. Load the appropriate template via LatexTemplateProvider
      * 2. Get the format-specific builder for handling format-specific logic
@@ -543,9 +545,10 @@ public class ExportService {
         }
     }
 
-    /**
-     * Inner class representing the readiness report for export.
+    /*
+     Inner class representing the readiness report for export.
      */
+    
     public static class ReadinessReport {
         private boolean ready;
         private List<String> issues = new ArrayList<>();

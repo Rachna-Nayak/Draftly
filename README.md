@@ -28,8 +28,8 @@ Example MongoDB config:
 
 ```properties
 spring.application.name=draftly
-spring.data.mongodb.uri=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
-spring.data.mongodb.database=draftly
+spring.mongodb.uri=mongodb+srv://<username>:<password>@<cluster>/<database>?retryWrites=true&w=majority
+spring.mongodb.database=draftly
 server.port=8080
 ```
 
