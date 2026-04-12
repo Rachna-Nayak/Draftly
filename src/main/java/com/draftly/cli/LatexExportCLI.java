@@ -1,16 +1,5 @@
 package com.draftly.cli;
 
-import com.draftly.model.PaperSection;
-import com.draftly.model.ResearchPaper;
-import com.draftly.service.*;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import org.apache.poi.xwpf.usermodel.XWPFParagraph;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -18,8 +7,26 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+import com.draftly.model.PaperSection;
+import com.draftly.model.ResearchPaper;
+import com.draftly.service.IeeeLatexFormatBuilder;
+import com.draftly.service.LatexEscapeUtils;
+import com.draftly.service.LatexFormatBuilder;
+import com.draftly.service.LatexTemplateProvider;
+import com.draftly.service.LncsLatexFormatBuilder;
 
 /**
  * LatexExportCLI - Command-line utility for testing LaTeX export functionality.

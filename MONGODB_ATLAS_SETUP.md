@@ -17,7 +17,7 @@
 4. Region: **Pick closest to your team**
 5. Cluster Name: **draftly-dev**
 6. Click **"Create Deployment"**
-7. Wait 2-3 minutes for cluster to spin up ✅
+7. Wait 2-3 minutes for cluster to spin up 
 
 ---
 
@@ -65,8 +65,8 @@ Edit `src/main/resources/application.properties`:
 spring.application.name=draftly
 
 # MongoDB Atlas Configuration
-spring.data.mongodb.uri=mongodb+srv://draftly_dev:YOUR_PASSWORD_HERE@draftly-dev.xxxxx.mongodb.net/draftly?retryWrites=true&w=majority
-spring.data.mongodb.database=draftly
+spring.mongodb.uri=mongodb+srv://draftly_dev:YOUR_PASSWORD_HERE@draftly-dev.xxxxx.mongodb.net/draftly?retryWrites=true&w=majority
+spring.mongodb.database=draftly
 
 # Server Configuration
 server.port=8080
