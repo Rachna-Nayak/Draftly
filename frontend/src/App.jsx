@@ -1,8 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
-import RoleRoute from './components/RoleRoute';
-import { USER_ROLES } from './roleAccess';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -42,89 +40,51 @@ export default function App() {
             {/* Home - Available to all authenticated users */}
             <Route path="/" element={<Home />} />
 
-            {/* UC2: Search - All authenticated users */}
-            <Route path="/search" element={<Search />} />
-            <Route path="/search/credibility/:paperId" element={<Credibility />} />
+            <Route element={<ProtectedRoute roles={['AUTHOR', 'REVIEWER', 'ADMIN']} />}>
+              {/* UC1: Projects */}
+              <Route path="/projects" element={<ProjectList />} />
+              <Route path="/projects/:id" element={<ProjectView />} />
 
-            {/* Submissions - All authenticated users */}
-            <Route path="/submissions" element={<SubmissionList />} />
-            <Route path="/submissions/new" element={<SubmissionCreate />} />
+              {/* UC2: Search  |  UC3: Credibility */}
+              <Route path="/search" element={<Search />} />
+              <Route path="/search/credibility/:paperId" element={<Credibility />} />
 
-            {/* UC1: Projects - Authors only */}
-            <Route 
-              path="/projects"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><ProjectList /></RoleRoute>}
-            />
-            <Route 
-              path="/projects/new"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><ProjectCreate /></RoleRoute>}
-            />
-            <Route 
-              path="/projects/:id"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><ProjectView /></RoleRoute>}
-            />
+              {/* UC4: References */}
+              <Route path="/projects/:projectId/references" element={<ReferenceList />} />
+              <Route path="/projects/:projectId/references/suggestions" element={<ReferenceSuggestions />} />
 
-            {/* UC4: References - Authors only */}
-            <Route 
-              path="/projects/:projectId/references"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><ReferenceList /></RoleRoute>}
-            />
-            <Route 
-              path="/projects/:projectId/references/suggestions"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><ReferenceSuggestions /></RoleRoute>}
-            />
+              {/* UC6: Papers */}
+              <Route path="/projects/:projectId/papers" element={<PaperList />} />
+              <Route path="/papers/:paperId" element={<PaperView />} />
 
-            {/* UC6: Papers & Feedback - Authors + Reviewers */}
-            <Route 
-              path="/projects/:projectId/papers"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR, USER_ROLES.REVIEWER]}><PaperList /></RoleRoute>}
-            />
-            <Route 
-              path="/projects/:projectId/papers/new"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><PaperCreate /></RoleRoute>}
-            />
-            <Route 
-              path="/papers/:paperId"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR, USER_ROLES.REVIEWER]}><PaperView /></RoleRoute>}
-            />
+              {/* Submissions */}
+              <Route path="/submissions" element={<SubmissionList />} />
 
-            {/* UC7: Plagiarism - Authors only */}
-            <Route 
-              path="/papers/:paperId/plagiarism"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><PlagiarismReport /></RoleRoute>}
-            />
+              {/* UC7: Plagiarism */}
+              <Route path="/papers/:paperId/plagiarism" element={<PlagiarismReport />} />
 
-            {/* UC8: Export - Authors only */}
-            <Route 
-              path="/papers/:paperId/export"
-              element={<RoleRoute allowedRoles={[USER_ROLES.AUTHOR]}><ExportReadiness /></RoleRoute>}
-            />
+              {/* UC8: Export */}
+              <Route path="/papers/:paperId/export" element={<ExportReadiness />} />
 
-            {/* Review Queue - Reviewers + Admins only */}
-            <Route 
-              path="/review-queue"
-              element={<RoleRoute allowedRoles={[USER_ROLES.REVIEWER, USER_ROLES.ADMIN]}><ReviewQueue /></RoleRoute>}
-            />
+              {/* Metrics */}
+              <Route path="/metrics" element={<MetricsDashboard />} />
+            </Route>
 
-            {/* Reviewer Assignment - Admins only */}
-            <Route 
-              path="/reviewer-assignment"
-              element={<RoleRoute allowedRoles={[USER_ROLES.ADMIN]}><ReviewerAssignment /></RoleRoute>}
-            />
+            <Route element={<ProtectedRoute roles={['AUTHOR', 'ADMIN']} />}>
+              <Route path="/projects/new" element={<ProjectCreate />} />
+              <Route path="/projects/:projectId/papers/new" element={<PaperCreate />} />
+              <Route path="/submissions/new" element={<SubmissionCreate />} />
+            </Route>
 
-            {/* Metrics & Analytics - Admins only */}
-            <Route 
-              path="/metrics"
-              element={<RoleRoute allowedRoles={[USER_ROLES.ADMIN]}><MetricsDashboard /></RoleRoute>}
-            />
-            <Route 
-              path="/analytics"
-              element={<RoleRoute allowedRoles={[USER_ROLES.ADMIN]}><AnalyticsPage /></RoleRoute>}
-            />
-            <Route 
-              path="/notifications"
-              element={<RoleRoute allowedRoles={[USER_ROLES.ADMIN]}><NotificationCenter /></RoleRoute>}
-            />
+            <Route element={<ProtectedRoute roles={['REVIEWER', 'ADMIN']} />}>
+              <Route path="/notifications" element={<NotificationCenter />} />
+              <Route path="/review-queue" element={<ReviewQueue />} />
+            </Route>
+
+            <Route element={<ProtectedRoute roles={['ADMIN']} />}>
+              <Route path="/reviewer-assignment" element={<ReviewerAssignment />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+            </Route>
           </Route>
         </Route>
       </Routes>
