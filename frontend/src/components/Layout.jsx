@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { logoutUser } from '../api';
 import { clearAuthSession, getCurrentUser, getCurrentUserRole, hasAnyRole } from '../authStorage';
+import { getRoleDisplayName } from '../roleAccess';
 import './Layout.css';
 
 export default function Layout() {
@@ -12,11 +13,6 @@ export default function Layout() {
   const canAccess = (roles) => isDevAuthBypassEnabled || hasAnyRole(roles);
 
   const handleLogout = async () => {
-    if (isDevAuthBypassEnabled) {
-      navigate('/');
-      return;
-    }
-
     try {
       await logoutUser();
     } catch {
@@ -62,7 +58,7 @@ export default function Layout() {
           <span>
             {isDevAuthBypassEnabled
               ? 'Demo mode'
-              : `${currentUser?.name || currentUser?.email}${currentRole ? ` (${currentRole})` : ''}`}
+              : `${currentUser?.name || currentUser?.email}${currentRole ? ` (${getRoleDisplayName(currentRole)})` : ''}`}
           </span>
           {!isDevAuthBypassEnabled && (
             <button className="btn btn-secondary" type="button" onClick={handleLogout}>Logout</button>

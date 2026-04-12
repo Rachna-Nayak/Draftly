@@ -1,17 +1,18 @@
 package com.draftly.service;
 
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Component;
 
 /**
  * LatexEscapeUtils - Utility class for LaTeX escaping operations.
  * Follows Single Responsibility: only handles LaTeX character escaping logic.
  * This is a utility/helper component that both format builders can reuse.
  */
+
 @Component
 public class LatexEscapeUtils {
 

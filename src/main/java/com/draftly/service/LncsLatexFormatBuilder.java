@@ -1,15 +1,14 @@
 package com.draftly.service;
 
-import com.draftly.model.PaperSection;
-import com.draftly.model.Reference;
-import org.springframework.stereotype.Component;
-
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.springframework.stereotype.Component;
+
+import com.draftly.model.PaperSection;
 
 /**
  * LncsLatexFormatBuilder - Implementation of LatexFormatBuilder for LNCS (Springer) format.

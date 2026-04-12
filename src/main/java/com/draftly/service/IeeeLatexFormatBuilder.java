@@ -1,19 +1,19 @@
 package com.draftly.service;
 
-import com.draftly.model.PaperSection;
-import com.draftly.model.Reference;
-import org.springframework.stereotype.Component;
-
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-/**
- * IeeeLatexFormatBuilder - Implementation of LatexFormatBuilder for IEEE format.
- * Encapsulates IEEE-specific LaTeX generation logic.
- * Follows Single Responsibility: only handles IEEE format specifics.
+import org.springframework.stereotype.Component;
+
+import com.draftly.model.PaperSection;
+
+/*
+ IeeeLatexFormatBuilder - Implementation of LatexFormatBuilder for IEEE format.
+ Encapsulates IEEE-specific LaTeX generation logic.
+ Follows Single Responsibility: only handles IEEE format specifics.
  */
+
 @Component
 public class IeeeLatexFormatBuilder implements LatexFormatBuilder {
 
