@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getProjects, deleteProject } from '../api';
-import { getCurrentUserId } from '../authStorage';
+import { getCurrentUserId, getCurrentUserRole } from '../authStorage';
 
 export default function ProjectList() {
   const [projects, setProjects] = useState([]);
+  const currentRole = getCurrentUserRole();
+  const isAdmin = currentRole === 'ADMIN';
 
   useEffect(() => {
     const ownerId = getCurrentUserId();
-    getProjects(ownerId || 'default').then((res) => setProjects(res.data));
+    getProjects(isAdmin ? undefined : (ownerId || 'default')).then((res) => setProjects(res.data));
   }, []);
 
   const handleDelete = async (id) => {
@@ -18,7 +20,7 @@ export default function ProjectList() {
 
   return (
     <>
-      <h1>My Research Projects</h1>
+      <h1>{isAdmin ? 'All Research Projects' : 'My Research Projects'}</h1>
       <Link to="/projects/new" className="btn btn-primary" style={{ marginBottom: '1.5rem' }}>+ New Project</Link>
 
       {projects.length === 0 && <p>No projects yet. Create your first research project!</p>}

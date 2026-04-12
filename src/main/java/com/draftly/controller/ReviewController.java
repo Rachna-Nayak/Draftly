@@ -1,6 +1,8 @@
 package com.draftly.controller;
 
 import com.draftly.model.Review;
+import com.draftly.model.UserRole;
+import com.draftly.security.RequireRoles;
 import com.draftly.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +20,19 @@ public class ReviewController {
     }
 
     @PostMapping
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public Review createReview(@RequestBody Review review) {
         return reviewService.createReview(review);
     }
 
     @GetMapping
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public List<Review> listReviews() {
         return reviewService.getAllReviews();
     }
 
     @GetMapping("/{id}")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public ResponseEntity<Review> getById(@PathVariable String id) {
         return reviewService.getById(id)
                 .map(ResponseEntity::ok)
@@ -35,16 +40,19 @@ public class ReviewController {
     }
 
     @GetMapping("/submission/{submissionId}")
+    @RequireRoles({UserRole.AUTHOR, UserRole.REVIEWER, UserRole.ADMIN})
     public List<Review> getBySubmissionId(@PathVariable String submissionId) {
         return reviewService.getBySubmissionId(submissionId);
     }
 
     @GetMapping("/reviewer/{reviewerUserId}")
+    @RequireRoles({UserRole.REVIEWER, UserRole.ADMIN})
     public List<Review> getByReviewerUserId(@PathVariable String reviewerUserId) {
         return reviewService.getByReviewerUserId(reviewerUserId);
     }
 
     @DeleteMapping("/{id}")
+    @RequireRoles({UserRole.ADMIN})
     public ResponseEntity<Void> deleteReview(@PathVariable String id) {
         reviewService.deleteReview(id);
         return ResponseEntity.noContent().build();

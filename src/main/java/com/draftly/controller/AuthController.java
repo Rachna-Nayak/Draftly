@@ -39,7 +39,7 @@ public class AuthController {
         String email = required(body, "email");
         String password = required(body, "password");
 
-        UserRole role = parseRole(body.getOrDefault("role", UserRole.STUDENT_RESEARCHER.name()));
+        UserRole role = parseRole(body.getOrDefault("role", UserRole.AUTHOR.name()));
 
         User user;
         try {
@@ -102,7 +102,7 @@ public class AuthController {
 
     private static UserRole parseRole(String roleRaw) {
         try {
-            return UserRole.valueOf(roleRaw);
+            return UserRole.fromExternalValue(roleRaw);
         } catch (IllegalArgumentException ex) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role: " + roleRaw);
         }
