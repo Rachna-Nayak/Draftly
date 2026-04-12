@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Unauthorized from './pages/Unauthorized';
 import ProjectList from './pages/ProjectList';
 import ProjectCreate from './pages/ProjectCreate';
 import ProjectView from './pages/ProjectView';
@@ -32,10 +33,11 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            {/* Home */}
+            {/* Home - Available to all authenticated users */}
             <Route path="/" element={<Home />} />
 
             <Route element={<ProtectedRoute roles={['AUTHOR', 'REVIEWER', 'ADMIN']} />}>

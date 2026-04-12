@@ -1,10 +1,9 @@
 package com.draftly.service;
 
-import com.draftly.model.PaperSection;
-import com.draftly.model.Reference;
-
 import java.util.List;
 import java.util.Map;
+
+import com.draftly.model.PaperSection;
 
 /**
  * LatexFormatBuilder - Interface for format-specific LaTeX generation.

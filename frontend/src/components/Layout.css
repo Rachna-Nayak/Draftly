@@ -24,6 +24,15 @@ body {
   gap: 0.8rem;
   color: #ecf0f1;
 }
+.navbar .role-badge {
+  background: rgba(52, 152, 219, 0.2);
+  border: 1px solid #3498db;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #3498db;
+}
 .navbar a {
   color: #ecf0f1;
   text-decoration: none;
