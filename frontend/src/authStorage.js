@@ -1,14 +1,5 @@
 const AUTH_STORAGE_KEY = 'draftly.auth';
 
-const ROLE_ALIASES = {
-  AUTHOR: 'AUTHOR',
-  STUDENT_RESEARCHER: 'AUTHOR',
-  REVIEWER: 'REVIEWER',
-  FACULTY_SUPERVISOR: 'REVIEWER',
-  ADMIN: 'ADMIN',
-  SYSTEM_ADMINISTRATOR: 'ADMIN',
-};
-
 export function setAuthSession(session) {
   localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(session));
 }
@@ -43,20 +34,5 @@ export function getCurrentUserId() {
 }
 
 export function getCurrentUserRole() {
-  const rawRole = getAuthSession()?.role;
-  return rawRole ? (ROLE_ALIASES[String(rawRole).toUpperCase()] || null) : null;
-}
-
-export function hasAnyRole(roles = []) {
-  const currentRole = getCurrentUserRole();
-  if (!currentRole) {
-    return false;
-  }
-  if (!roles.length) {
-    return true;
-  }
-
-  return roles
-    .map((role) => ROLE_ALIASES[String(role).toUpperCase()] || String(role).toUpperCase())
-    .includes(currentRole);
+  return getAuthSession()?.role || null;
 }
