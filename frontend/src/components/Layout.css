@@ -342,6 +342,166 @@ th { background: #f8f9fa; font-weight: 600; }
   font-weight: 600;
 }
 
+.metrics-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.metrics-subtitle {
+  color: #5c7084;
+  line-height: 1.5;
+}
+
+.metrics-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metrics-scope-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+}
+
+.metrics-updated-at {
+  color: #5c7084;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.metric-card {
+  margin-bottom: 0;
+  padding: 1rem 1.1rem;
+}
+
+.metric-label {
+  font-size: 0.9rem;
+  color: #6b7d8f;
+  margin-bottom: 0.4rem;
+}
+
+.metric-value {
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: #1a3a52;
+  line-height: 1.1;
+}
+
+@media (max-width: 760px) {
+  .metrics-header,
+  .metrics-scope-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .metrics-updated-at {
+    white-space: normal;
+  }
+}
+
+.analytics-kpis-grid {
+  margin-bottom: 1rem;
+}
+
+.analytics-two-col {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.analytics-bars {
+  margin-top: 0.8rem;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.analytics-bar-row {
+  display: grid;
+  grid-template-columns: 56px 1fr 42px;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.analytics-bar-label,
+.analytics-bar-value {
+  font-size: 0.9rem;
+  color: #516579;
+}
+
+.analytics-bar-track {
+  height: 10px;
+  border-radius: 999px;
+  background: #e9f0f7;
+  overflow: hidden;
+}
+
+.analytics-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4da3e3, #247ad0);
+}
+
+.page-section-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.page-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.submission-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.submission-table {
+  width: 100%;
+  min-width: 840px;
+}
+
+.submission-table th {
+  white-space: nowrap;
+}
+
+.submission-row {
+  cursor: pointer;
+  transition: background-color 0.16s ease;
+}
+
+.submission-row:hover {
+  background: #f8fbff;
+}
+
+.submission-row.is-selected {
+  background: #eef6ff;
+}
+
+.submission-title {
+  font-weight: 600;
+  color: #1f344a;
+  line-height: 1.45;
+  min-width: 180px;
+}
+
+.submission-details-card {
+  border: 1px solid #e6edf5;
+}
+
 .auth-hint a:hover {
   color: #0e558d;
 }
