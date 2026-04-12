@@ -33,6 +33,32 @@ export const logoutUser = () => api.post('/auth/logout');
 
 export const getCurrentUser = () => api.get('/auth/me');
 
+// ── Metrics Dashboard ──
+export const getMetricsDashboards = () => api.get('/metrics-dashboards');
+
+export const getMetricsDashboardByScope = (scopeType, scopeId) =>
+  api.get('/metrics-dashboards/scope', { params: { scopeType, scopeId } });
+
+// ── Analytics ──
+export const getAuditLogs = () => api.get('/logs');
+
+// ── Notifications ──
+export const getNotifications = () => api.get('/notifications');
+
+export const sendNotification = (data) => api.post('/notifications/send', data);
+
+export const notifyPaperSubmitted = (data) =>
+  api.post('/notifications/events/paper-submitted', data);
+
+export const notifyReviewerAssigned = (data) =>
+  api.post('/notifications/events/reviewer-assigned', data);
+
+export const notifyFeedbackSubmitted = (data) =>
+  api.post('/notifications/events/feedback-submitted', data);
+
+export const notifyReviewCompleted = (data) =>
+  api.post('/notifications/events/review-completed', data);
+
 // ── UC1: Projects ──
 export const getProjects = (ownerId = 'default') =>
   api.get('/projects', { params: { ownerId } });
@@ -98,5 +124,52 @@ export const exportWord = (paperId) =>
 
 export const exportLatex = (paperId) =>
   api.get(`/export/latex/${paperId}`, { responseType: 'blob' });
+
+// ── Submissions ──
+export const getSubmissions = ({ authorId, projectId }) =>
+  api.get('/submissions', { params: { authorId, projectId } });
+
+export const createSubmission = (data) => api.post('/submissions', data);
+
+export const getSubmission = (submissionId) => api.get(`/submissions/${submissionId}`);
+
+export const getSubmissionVersions = (submissionId) =>
+  api.get(`/submissions/${submissionId}/versions`);
+
+export const getSubmissionReviews = (submissionId) =>
+  api.get(`/submissions/${submissionId}/reviews`);
+
+export const getSubmissionFeedback = (submissionId) =>
+  api.get(`/submissions/${submissionId}/feedback`);
+
+export const submitSubmission = (submissionId) =>
+  api.post(`/submissions/${submissionId}/submit`);
+
+export const publishSubmission = (submissionId, data) =>
+  api.post(`/submissions/${submissionId}/publish`, data);
+
+// ── Reviews ──
+export const getReviews = () => api.get('/reviews');
+
+export const getReviewsByReviewer = (reviewerUserId) =>
+  api.get(`/reviews/reviewer/${reviewerUserId}`);
+
+export const getReviewsBySubmission = (submissionId) =>
+  api.get(`/reviews/submission/${submissionId}`);
+
+export const createReview = (data) => api.post('/reviews', data);
+
+// ── Review Schedules ──
+export const getReviewSchedules = () => api.get('/review-schedules');
+
+export const getReviewSchedulesByReviewer = (reviewerUserId) =>
+  api.get(`/review-schedules/reviewer/${reviewerUserId}`);
+
+export const getReviewSchedulesBySubmission = (submissionId) =>
+  api.get(`/review-schedules/submission/${submissionId}`);
+
+export const createReviewSchedule = (data) => api.post('/review-schedules', data);
+
+export const completeReviewSchedule = (id) => api.post(`/review-schedules/${id}/complete`);
 
 export default api;
