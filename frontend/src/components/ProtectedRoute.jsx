@@ -6,11 +6,10 @@ export default function ProtectedRoute({ roles = [] }) {
   const token = getSessionToken();
   const isDevAuthBypassEnabled = import.meta.env.VITE_BYPASS_AUTH === 'true';
 
-  if (isDevAuthBypassEnabled) {
-    return <Outlet />;
-  }
-
   if (!token) {
+    if (isDevAuthBypassEnabled && roles.length === 0) {
+      return <Outlet />;
+    }
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
