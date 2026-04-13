@@ -1,7 +1,7 @@
 spring.application.name=draftly
 
 # MongoDB Configuration
-spring.mongodb.uri=mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/draftly?retryWrites=true&w=majority
+spring.mongodb.uri=mongodb+srv://draftly_dev:fYyhNJN13mTUeqaq@draftly.0lmhtbw.mongodb.net/draftly?retryWrites=true&w=majority
 spring.data.mongodb.database=draftly
 
 # Server Configuration

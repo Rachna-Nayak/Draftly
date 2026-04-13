@@ -24,6 +24,7 @@ import ReviewQueue from './pages/ReviewQueue';
 import SubmissionList from './pages/SubmissionList';
 import SubmissionCreate from './pages/SubmissionCreate';
 import ReviewerAssignment from './pages/ReviewerAssignment';
+import PaperUploadConverter from './pages/PaperUploadConverter';
 import './components/Layout.css';
 import './App.css';
 
@@ -56,6 +57,9 @@ export default function App() {
               {/* UC6: Papers */}
               <Route path="/projects/:projectId/papers" element={<PaperList />} />
               <Route path="/papers/:paperId" element={<PaperView />} />
+
+              {/* DOCX → LaTeX Converter */}
+              <Route path="/converter" element={<PaperUploadConverter />} />
 
               {/* Submissions */}
               <Route path="/submissions" element={<SubmissionList />} />
