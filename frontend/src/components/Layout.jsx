@@ -31,6 +31,7 @@ export default function Layout() {
           <>
             <NavLink to="/projects">Projects</NavLink>
             <NavLink to="/search">Search Literature</NavLink>
+            <NavLink to="/converter">📄 DOCX → LaTeX</NavLink>
             <NavLink to="/submissions">Submissions</NavLink>
             <NavLink to="/metrics">Metrics</NavLink>
           </>
