@@ -173,3 +173,13 @@ export const createReviewSchedule = (data) => api.post('/review-schedules', data
 export const completeReviewSchedule = (id) => api.post(`/review-schedules/${id}/complete`);
 
 export default api;
+
+// ── UC4: References - Export ──
+export const exportReferencesBibtex = (projectId) =>
+  api.get(`/references/${projectId}/export/bibtex`, { responseType: 'blob' });
+
+export const exportReferencesPlaintext = (projectId, format = 'APA') =>
+  api.get(`/references/${projectId}/export/plaintext`, { params: { format }, responseType: 'blob' });
+
+export const exportReferencesHtml = (projectId, format = 'APA') =>
+  api.get(`/references/${projectId}/export/html`, { params: { format }, responseType: 'blob' });
