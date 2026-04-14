@@ -39,6 +39,7 @@ public class SubmissionService {
     private final ReferenceRepository referenceRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public SubmissionService(SubmissionRepository submissionRepository,
                              PaperVersionRepository paperVersionRepository,
@@ -48,7 +49,8 @@ public class SubmissionService {
                              PublishedPaperRepository publishedPaperRepository,
                              ReferenceRepository referenceRepository,
                              ProjectRepository projectRepository,
-                             UserRepository userRepository) {
+                             UserRepository userRepository,
+                             NotificationService notificationService) {
         this.submissionRepository = submissionRepository;
         this.paperVersionRepository = paperVersionRepository;
         this.reviewRepository = reviewRepository;
@@ -58,6 +60,7 @@ public class SubmissionService {
         this.referenceRepository = referenceRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.notificationService = notificationService;
     }
 
     public Submission createSubmission(String projectId, String authorId, String title,
@@ -141,7 +144,13 @@ public class SubmissionService {
         submission.setStatus(Submission.Status.SUBMITTED);
         submission.setLocked(true);
         submission.setUpdatedAt(LocalDateTime.now());
-        return submissionRepository.save(submission);
+        Submission saved = submissionRepository.save(submission);
+
+        if (saved.getAuthorId() != null && !saved.getAuthorId().isBlank()) {
+            notificationService.notifyPaperSubmitted(saved.getAuthorId(), saved.getId());
+        }
+
+        return saved;
     }
 
     /**
