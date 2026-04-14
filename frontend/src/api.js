@@ -172,4 +172,30 @@ export const createReviewSchedule = (data) => api.post('/review-schedules', data
 
 export const completeReviewSchedule = (id) => api.post(`/review-schedules/${id}/complete`);
 
+// ── New Review Submission Functions ──
+
+// Get pending reviews for the current reviewer
+export const getMyPendingReviews = () => {
+  const auth = JSON.parse(localStorage.getItem('draftly.auth') || '{}');
+  return api.get('/reviews/pending/my-reviews', {
+    headers: { 'X-User-Id': auth.userId || '' }
+  });
+};
+
+// Get submission review context (with blind review - no author info)
+export const getSubmissionReviewContext = (submissionId) => {
+  const auth = JSON.parse(localStorage.getItem('draftly.auth') || '{}');
+  return api.get(`/reviews/submission/${submissionId}/context`, {
+    headers: { 'X-User-Id': auth.userId || '' }
+  });
+};
+
+// Submit a review with validation
+export const submitReview = (reviewData) => {
+  const auth = JSON.parse(localStorage.getItem('draftly.auth') || '{}');
+  return api.post('/reviews/submit', reviewData, {
+    headers: { 'X-User-Id': auth.userId || '' }
+  });
+};
+
 export default api;
