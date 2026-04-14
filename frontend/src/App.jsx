@@ -25,6 +25,8 @@ import SubmissionList from './pages/SubmissionList';
 import SubmissionCreate from './pages/SubmissionCreate';
 import ReviewerAssignment from './pages/ReviewerAssignment';
 import PaperUploadConverter from './pages/PaperUploadConverter';
+import MyReviewsPage from './pages/MyReviewsPage';
+import ReviewDetailPage from './pages/ReviewDetailPage';
 import './components/Layout.css';
 import './App.css';
 
@@ -83,6 +85,8 @@ export default function App() {
             <Route element={<ProtectedRoute roles={['REVIEWER', 'ADMIN']} />}>
               <Route path="/notifications" element={<NotificationCenter />} />
               <Route path="/review-queue" element={<ReviewQueue />} />
+              <Route path="/reviews/pending" element={<MyReviewsPage />} />
+              <Route path="/reviews/:submissionId" element={<ReviewDetailPage />} />
             </Route>
 
             <Route element={<ProtectedRoute roles={['ADMIN']} />}>
