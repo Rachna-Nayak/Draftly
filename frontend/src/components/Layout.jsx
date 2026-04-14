@@ -44,6 +44,7 @@ export default function Layout() {
         {canAccess(['REVIEWER', 'ADMIN']) && (
           <>
             <NavLink to="/notifications">Notifications</NavLink>
+            <NavLink to="/reviews/pending">My Reviews</NavLink>
             <NavLink to="/review-queue">Review Queue</NavLink>
           </>
         )}
