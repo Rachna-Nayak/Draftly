@@ -29,14 +29,21 @@ export default function PaperUploadConverter() {
       setError('');
       setLatex('');
 
-      const response = await api.post('/convert/docx-to-latex', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      // DO NOT manually set Content-Type for FormData
+      // Let axios set it with the correct multipart boundary
+      const response = await api.post('/convert/docx-to-latex', formData);
 
-      // Expecting { latex: "..." } from backend
       setLatex(response?.data?.latex || '');
     } catch (err) {
-      console.error(err);
+      console.error('Upload error:', err);
+      console.error('Status:', err?.response?.status);
+      
+      if (err?.response?.status === 401) {
+        setError('Session expired. Redirecting to login...');
+        setTimeout(() => window.location.href = '/login', 2000);
+        return;
+      }
+      
       setError(
         err?.response?.data?.message ||
           'Conversion failed. Please try again or check the file.'

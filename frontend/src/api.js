@@ -3,10 +3,15 @@ import { clearAuthSession, getSessionToken } from './authStorage';
 
 const api = axios.create({
   baseURL: '/api',
-  headers: { 'Content-Type': 'application/json' },
 });
 
 api.interceptors.request.use((config) => {
+  // Only set Content-Type: application/json if NOT sending FormData
+  // FormData must NOT have a Content-Type header so axios can set the multipart boundary
+  if (!(config.data instanceof FormData)) {
+    config.headers['Content-Type'] = 'application/json';
+  }
+  
   const token = getSessionToken();
   if (token) {
     config.headers['X-Session-Token'] = token;
